@@ -222,40 +222,79 @@
 
 <!-- SETUP JSONBIN MODAL -->
 <div class="modal-overlay" id="setup-modal">
-  <div class="modal" style="max-width:580px">
-    <h3>⚙️ Configurazione Database Condiviso</h3>
-    <p>Per sincronizzare le disponibilità in tempo reale tra tutti i tecnici usiamo <strong>JSONBin.io</strong> — gratuito, nessuna registrazione complicata.</p>
+  <div class="modal" style="max-width:600px">
 
-    <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:14px 16px;margin-bottom:18px;font-size:13px;line-height:1.7">
-      <strong>📋 Istruzioni (3 minuti):</strong><br>
-      1. Vai su <a href="https://jsonbin.io" target="_blank" style="color:var(--accent)">jsonbin.io</a> e crea un account gratuito<br>
-      2. Vai in <strong>API Keys</strong> → crea una nuova Master Key<br>
-      3. Incollala qui sotto e clicca <strong>Crea Database</strong><br>
-      4. Copia il <strong>Bin ID</strong> che appare e condividilo con gli altri tecnici<br>
-      5. Gli altri tecnici inseriscono la stessa API Key + Bin ID per connettersi
-    </div>
-
-    <div class="mfield">
-      <label>Master API Key <span style="font-weight:400;text-transform:none;letter-spacing:0">(da jsonbin.io → API Keys)</span></label>
-      <input type="text" id="setup-apikey" placeholder="$2a$10$..." style="font-family:monospace;font-size:12px">
-    </div>
-    <div class="mfield">
-      <label>Bin ID <span style="font-weight:400;text-transform:none;letter-spacing:0">(lascia vuoto per crearne uno nuovo)</span></label>
-      <input type="text" id="setup-binid" placeholder="67a3f... (solo se ti è già stato condiviso)" style="font-family:monospace;font-size:12px">
+    <!-- TAB SWITCHER -->
+    <div style="display:flex;gap:0;margin-bottom:22px;border:1.5px solid var(--border);border-radius:8px;overflow:hidden">
+      <button id="tab-tecnico" onclick="switchSetupTab('tecnico')"
+        style="flex:1;padding:10px;border:none;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:var(--accent);color:#fff;transition:all 0.15s">
+        👤 Sono un Tecnico
+      </button>
+      <button id="tab-admin" onclick="switchSetupTab('admin')"
+        style="flex:1;padding:10px;border:none;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:var(--surface2);color:var(--text-muted);transition:all 0.15s">
+        🔧 Sono l'Admin
+      </button>
     </div>
 
-    <div id="setup-result-box" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px 16px;margin-bottom:14px;font-size:13px">
-      ✅ <strong>Database creato!</strong> Il tuo Bin ID è:<br>
-      <code id="setup-binid-result" style="font-size:13px;background:#e8f5e9;padding:4px 8px;border-radius:4px;display:inline-block;margin-top:6px;user-select:all"></code><br>
-      <span style="color:var(--text-muted);font-size:12px;margin-top:6px;display:block">📌 Condividi questo ID con gli altri tecnici, insieme alla API Key</span>
+    <!-- TAB: TECNICO -->
+    <div id="panel-tecnico">
+      <h3 style="margin-bottom:6px">🔑 Inserisci la Password</h3>
+      <p>Inserisci la password che ti ha fornito l'amministratore per accedere al calendario condiviso.</p>
+      <div class="mfield">
+        <label>Password calendario</label>
+        <input type="password" id="tecnico-password" placeholder="••••••••••••••••"
+          style="font-family:monospace;font-size:14px;letter-spacing:2px">
+      </div>
+      <div class="mfield">
+        <label>Bin ID <span style="font-weight:400;text-transform:none;letter-spacing:0">(fornito dall'admin)</span></label>
+        <input type="text" id="tecnico-binid" placeholder="67a3f2c4acd3..." style="font-family:monospace;font-size:12px">
+      </div>
+      <p id="tecnico-status" style="font-size:13px;color:var(--accent);min-height:18px;margin-bottom:14px"></p>
+      <div class="modal-actions">
+        <button class="btn-sec" onclick="resetSetup()" style="margin-right:auto;font-size:11px;color:var(--no);border-color:rgba(220,38,38,0.3)">Reset</button>
+        <button class="btn-sec" onclick="closeModal('setup-modal')">Annulla</button>
+        <button class="btn-pri" onclick="submitTecnico()">🔓 Connetti</button>
+      </div>
     </div>
 
-    <p id="setup-status" style="font-size:13px;color:var(--accent);min-height:18px"></p>
-    <div class="modal-actions">
-      <button class="btn-sec" onclick="resetSetup()" style="margin-right:auto;font-size:11px;color:var(--no);border-color:rgba(220,38,38,0.3)" title="Rimuovi configurazione locale">Reset</button>
-      <button class="btn-sec" onclick="closeModal('setup-modal')">Annulla</button>
-      <button class="btn-pri" onclick="submitSetup()">⚡ Connetti / Crea Database</button>
+    <!-- TAB: ADMIN -->
+    <div id="panel-admin" style="display:none">
+      <h3 style="margin-bottom:6px">🔧 Setup Amministratore</h3>
+      <p>Crea il database condiviso e genera la password per i tecnici. Fai questo <strong>una volta sola</strong>.</p>
+
+      <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:13px 15px;margin-bottom:16px;font-size:12.5px;line-height:1.8">
+        <strong>📋 Come funziona:</strong><br>
+        1. Vai su <a href="https://jsonbin.io" target="_blank" style="color:var(--accent)">jsonbin.io</a> → crea account gratuito<br>
+        2. Vai in <strong>API Keys</strong> → crea una <strong>Master Key</strong><br>
+        3. Incollala qui sotto → clicca <strong>Crea Database</strong><br>
+        4. Riceverai un <strong>Bin ID</strong> e una <strong>Password</strong> da condividere con i tecnici<br>
+        5. La tua Master Key <em>non viene mai salvata</em> nel file
+      </div>
+
+      <div class="mfield">
+        <label>Master Key <span style="font-weight:400;text-transform:none;letter-spacing:0">(da jsonbin.io → API Keys, usata solo ora)</span></label>
+        <input type="text" id="admin-masterkey" placeholder="$2a$10$..." style="font-family:monospace;font-size:12px">
+      </div>
+
+      <div id="admin-result-box" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-bottom:14px;font-size:13px;line-height:2">
+        ✅ <strong>Database creato con successo!</strong><br>
+        Condividi questi due dati con i tuoi tecnici:<br><br>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:center">
+          <span style="font-weight:700;color:var(--text-muted);font-size:11px;letter-spacing:1px;text-transform:uppercase">BIN ID</span>
+          <code id="result-binid" style="background:#e8f5e9;padding:4px 10px;border-radius:4px;user-select:all;font-size:12px;cursor:pointer" onclick="navigator.clipboard.writeText(this.textContent)" title="Clicca per copiare"></code>
+          <span style="font-weight:700;color:var(--text-muted);font-size:11px;letter-spacing:1px;text-transform:uppercase">PASSWORD</span>
+          <code id="result-accesskey" style="background:#e8f5e9;padding:4px 10px;border-radius:4px;user-select:all;font-size:12px;cursor:pointer;word-break:break-all" onclick="navigator.clipboard.writeText(this.textContent)" title="Clicca per copiare"></code>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text-muted)">📋 Clicca su Bin ID o Password per copiarli. Salvali in un posto sicuro!</div>
+      </div>
+
+      <p id="admin-status" style="font-size:13px;color:var(--accent);min-height:18px;margin-bottom:14px"></p>
+      <div class="modal-actions">
+        <button class="btn-sec" onclick="closeModal('setup-modal')">Chiudi</button>
+        <button class="btn-pri" onclick="submitAdmin()">⚡ Crea Database</button>
+      </div>
     </div>
+
   </div>
 </div>
 
@@ -337,12 +376,15 @@ let syncInterval = null;
 let isSaving = false;
 
 // ─── JSONBIN API ──────────────────────────────────────────────────────────────
+// cfg = { binId, accessKey }  — l'accessKey è la "password" condivisa tra tecnici
+// La masterKey viene usata SOLO dall'admin durante il setup, mai salvata in cfg
+
 async function jbRead() {
   const cfg = getCfg();
   if (!cfg) return null;
   try {
     const r = await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}/latest`, {
-      headers: { 'X-Master-Key': cfg.apiKey }
+      headers: { 'X-Access-Key': cfg.accessKey }
     });
     if (!r.ok) return null;
     const j = await r.json();
@@ -356,20 +398,21 @@ async function jbWrite(data) {
   try {
     const r = await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'X-Master-Key': cfg.apiKey },
+      headers: { 'Content-Type': 'application/json', 'X-Access-Key': cfg.accessKey },
       body: JSON.stringify(data)
     });
     return r.ok;
   } catch { return false; }
 }
 
-async function jbCreate(apiKey) {
+// Admin only: crea il bin con la Master Key
+async function jbAdminCreateBin(masterKey) {
   try {
     const r = await fetch('https://api.jsonbin.io/v3/b', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Master-Key': apiKey,
+        'X-Master-Key': masterKey,
         'X-Bin-Name': 'Calendario Triveneto 2026',
         'X-Bin-Private': 'true'
       },
@@ -378,6 +421,26 @@ async function jbCreate(apiKey) {
     if (!r.ok) return null;
     const j = await r.json();
     return j.metadata?.id || null;
+  } catch { return null; }
+}
+
+// Admin only: crea una Access Key limitata a quel bin (lettura + scrittura)
+async function jbAdminCreateAccessKey(masterKey, binId) {
+  try {
+    const r = await fetch('https://api.jsonbin.io/v3/a', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': masterKey },
+      body: JSON.stringify({
+        name: 'Tecnici Calendario 2026',
+        permissions: [
+          { collection: 'bins', resource: binId, actions: ['READ', 'UPDATE'] }
+        ]
+      })
+    });
+    if (!r.ok) return null;
+    const j = await r.json();
+    // JSONBin returns the key string directly in different fields depending on plan
+    return j.key || j.accessKey || j.record?.key || null;
   } catch { return null; }
 }
 
@@ -628,51 +691,81 @@ function exportCSV() {
 }
 
 // ─── SETUP JSONBIN ────────────────────────────────────────────────────────────
-function openSetup() { document.getElementById('setup-modal').classList.add('open'); }
+function openSetup() {
+  document.getElementById('setup-modal').classList.add('open');
+  // Default: mostra tab tecnico se non c'è cfg, altrimenti mostra tecnico
+  switchSetupTab('tecnico');
+}
 
-async function submitSetup() {
-  const apiKey = document.getElementById('setup-apikey').value.trim();
-  const existingBin = document.getElementById('setup-binid').value.trim();
-  const statusEl = document.getElementById('setup-status');
+function switchSetupTab(tab) {
+  const isTecnico = tab === 'tecnico';
+  document.getElementById('panel-tecnico').style.display = isTecnico ? 'block' : 'none';
+  document.getElementById('panel-admin').style.display   = isTecnico ? 'none'  : 'block';
+  document.getElementById('tab-tecnico').style.background = isTecnico ? 'var(--accent)' : 'var(--surface2)';
+  document.getElementById('tab-tecnico').style.color      = isTecnico ? '#fff' : 'var(--text-muted)';
+  document.getElementById('tab-admin').style.background   = isTecnico ? 'var(--surface2)' : 'var(--accent)';
+  document.getElementById('tab-admin').style.color        = isTecnico ? 'var(--text-muted)' : '#fff';
+}
 
-  if (!apiKey) { statusEl.textContent = '⚠️ Inserisci la API Key'; return; }
+// Tecnico: inserisce password (= Access Key) + Bin ID
+async function submitTecnico() {
+  const password = document.getElementById('tecnico-password').value.trim();
+  const binId    = document.getElementById('tecnico-binid').value.trim();
+  const statusEl = document.getElementById('tecnico-status');
+  if (!password || !binId) { statusEl.textContent = '⚠️ Inserisci password e Bin ID'; return; }
   statusEl.textContent = '⏳ Verifico…';
-
-  let binId = existingBin;
-
-  if (!binId) {
-    // Crea nuovo bin
-    statusEl.textContent = '⏳ Creo il database condiviso…';
-    binId = await jbCreate(apiKey);
-    if (!binId) {
-      statusEl.textContent = '❌ Errore: API Key non valida o problema di rete. Controlla la chiave su jsonbin.io';
-      return;
-    }
-  } else {
-    // Testa bin esistente
-    const cfg = {apiKey, binId};
-    saveCfg(cfg);
-    const test = await jbRead();
-    if (test === null) {
-      statusEl.textContent = '❌ Bin ID o API Key non validi. Ricontrolla.';
-      return;
-    }
+  saveCfg({ accessKey: password, binId });
+  const test = await jbRead();
+  if (test === null) {
+    statusEl.textContent = '❌ Password o Bin ID non corretti. Richiedi le credenziali all'admin.';
+    return;
   }
-
-  saveCfg({apiKey, binId});
-  statusEl.textContent = '✓ Connesso!';
-  document.getElementById('setup-binid-result').textContent = binId;
-  document.getElementById('setup-result-box').style.display = 'block';
-
+  statusEl.textContent = '✓ Accesso confermato!';
   setTimeout(async () => {
     closeModal('setup-modal');
     await syncFromServer();
     startPolling();
-  }, 1500);
+  }, 800);
+}
+
+// Admin: crea bin + access key con la Master Key (mai salvata)
+async function submitAdmin() {
+  const masterKey = document.getElementById('admin-masterkey').value.trim();
+  const statusEl  = document.getElementById('admin-status');
+  if (!masterKey) { statusEl.textContent = '⚠️ Inserisci la Master Key'; return; }
+
+  statusEl.textContent = '⏳ Creo il database…';
+  const binId = await jbAdminCreateBin(masterKey);
+  if (!binId) {
+    statusEl.textContent = '❌ Master Key non valida o errore di rete. Controlla su jsonbin.io';
+    return;
+  }
+
+  statusEl.textContent = '⏳ Genero la password per i tecnici…';
+  const accessKey = await jbAdminCreateAccessKey(masterKey, binId);
+
+  if (!accessKey) {
+    // fallback: alcuni piani free non supportano Access Key via API → usiamo master key come fallback e avvisiamo
+    statusEl.textContent = '⚠️ Access Key non disponibile sul tuo piano — usa la Master Key come password (meno sicuro)';
+    document.getElementById('result-binid').textContent = binId;
+    document.getElementById('result-accesskey').textContent = masterKey + ' ⚠️ Master Key';
+    document.getElementById('admin-result-box').style.display = 'block';
+    // Salva cfg per l'admin stesso con master key come access key
+    saveCfg({ accessKey: masterKey, binId });
+    return;
+  }
+
+  document.getElementById('result-binid').textContent     = binId;
+  document.getElementById('result-accesskey').textContent = accessKey;
+  document.getElementById('admin-result-box').style.display = 'block';
+  statusEl.textContent = '✅ Tutto pronto! Condividi Bin ID e Password con i tecnici.';
+
+  // Salva cfg per l'admin stesso
+  saveCfg({ accessKey, binId });
 }
 
 async function resetSetup() {
-  if (!confirm('Sei sicuro? Questo rimuove la configurazione locale (i dati rimangono su JSONBin).')) return;
+  if (!confirm('Rimuove la configurazione locale (i dati sul server rimangono intatti).')) return;
   localStorage.removeItem(CFG_KEY);
   location.reload();
 }
