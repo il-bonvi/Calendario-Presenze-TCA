@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendario Triveneto Donne 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --bg: #f4f5f7; --surface: #ffffff; --surface2: #eef0f4; --border: #dde0e8;
+    --accent: #d63468; --accent2: #d97706; --text: #1a1a2e; --text-muted: #7a7a9a;
+    --yes: #059669; --no: #dc2626;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; font-weight: 300; min-height: 100vh; padding-bottom: 70px; }
+
+  header { background: linear-gradient(135deg, #fff0f4 0%, #fce4ec 50%, #ffd6e7 100%); border-bottom: 2px solid var(--accent); padding: 32px 40px 24px; position: relative; overflow: hidden; }
+  header::after { content: '♀'; position: absolute; right: 40px; top: 50%; transform: translateY(-50%); font-size: 120px; color: rgba(214,52,104,0.07); line-height: 1; }
+  .header-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  h1 { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(26px, 5vw, 50px); font-weight: 800; line-height: 1; text-transform: uppercase; color: var(--text); }
+  h1 span { color: var(--accent); }
+  .header-sub { margin-top: 8px; font-size: 13px; color: var(--text-muted); }
+  .stats-bar { display: flex; gap: 28px; margin-top: 18px; flex-wrap: wrap; }
+  .stat { display: flex; flex-direction: column; gap: 2px; }
+  .stat-value { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 700; color: var(--text); line-height: 1; }
+  .stat-value.yes { color: var(--yes); } .stat-value.no { color: var(--no); } .stat-value.pend { color: var(--text-muted); }
+  .stat-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+
+  .user-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 40px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .user-bar-label { font-size: 11px; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap; }
+  .user-chips { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+  .user-chip { padding: 5px 16px; border-radius: 20px; border: 1.5px solid var(--border); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; cursor: pointer; background: var(--surface2); color: var(--text-muted); transition: all 0.15s; }
+  .user-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .user-chip:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+  .add-user-btn { padding: 5px 14px; border-radius: 20px; border: 1.5px dashed var(--border); font-size: 13px; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.15s; font-family: 'Barlow', sans-serif; }
+  .add-user-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .toolbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 40px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .tb-btn { display: inline-flex; align-items: center; gap: 7px; padding: 7px 16px; border-radius: 7px; border: 1.5px solid var(--border); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; background: var(--surface); color: var(--text-muted); transition: all 0.15s; }
+  .tb-btn:hover { border-color: var(--accent); color: var(--accent); background: #fff0f4; }
+  .tb-sep { width: 1px; height: 28px; background: var(--border); margin: 0 2px; }
+  .view-toggle { display: flex; border: 1.5px solid var(--border); border-radius: 7px; overflow: hidden; margin-left: auto; }
+  .vt-btn { padding: 6px 14px; background: none; border: none; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); transition: all 0.15s; }
+  .vt-btn.active { background: var(--accent); color: #fff; }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+  .month-section { margin-top: 28px; }
+  .month-header { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; padding: 0 4px; }
+  .month-title { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 4px; color: var(--text-muted); }
+  .month-line { flex: 1; height: 1px; background: var(--border); }
+  .month-count { font-size: 11px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  thead th { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); background: #fafbfc; white-space: nowrap; }
+  tr.race-row { border-bottom: 1px solid rgba(221,224,232,0.5); transition: background 0.12s; }
+  tr.race-row:last-child { border-bottom: none; }
+  tr.race-row:hover { background: #fafbfd; }
+  td { padding: 10px 12px; vertical-align: middle; }
+
+  .td-date { font-family: 'Barlow Condensed', sans-serif; font-size: 21px; font-weight: 700; color: var(--text); min-width: 42px; white-space: nowrap; }
+  .cat-badge { display: inline-block; background: rgba(214,52,104,0.08); border: 1px solid rgba(214,52,104,0.2); color: var(--accent); font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; padding: 2px 7px; border-radius: 3px; text-transform: uppercase; white-space: nowrap; }
+  .cat-badge.campio { background: rgba(217,119,6,0.08); border-color: rgba(217,119,6,0.25); color: var(--accent2); }
+  .locality-link { display: inline-flex; align-items: center; gap: 5px; color: #5a5a9a; text-decoration: none; font-weight: 400; transition: color 0.15s; white-space: nowrap; font-size: 12.5px; }
+  .locality-link:hover { color: var(--accent); }
+  .denomination { color: var(--text); font-weight: 400; max-width: 300px; font-size: 13px; }
+  .denomination .special { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; color: var(--accent2); text-transform: uppercase; display: block; margin-top: 2px; }
+  .organizer { color: var(--text-muted); font-size: 11.5px; max-width: 160px; }
+
+  .avail-select { appearance: none; -webkit-appearance: none; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 6px; color: var(--text-muted); font-family: 'Barlow', sans-serif; font-size: 12px; padding: 5px 22px 5px 8px; cursor: pointer; width: 120px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%237a7a9a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 7px center; outline: none; transition: border-color 0.15s, background 0.15s; }
+  .avail-select.pres-yes { border-color: rgba(5,150,105,0.45); color: var(--yes); background-color: rgba(5,150,105,0.07); }
+  .avail-select.pres-no  { border-color: rgba(220,38,38,0.45);  color: var(--no);  background-color: rgba(220,38,38,0.07);  }
+  .avail-col-header { display: flex; flex-direction: column; gap: 1px; }
+  .avail-col-name { font-weight: 800; }
+
+  /* SUMMARY */
+  .summary-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); font-size: 13px; }
+  .summary-table th { background: #fafbfc; border-bottom: 1px solid var(--border); padding: 10px 14px; text-align: left; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; }
+  .summary-table td { padding: 10px 14px; border-bottom: 1px solid rgba(221,224,232,0.4); vertical-align: middle; }
+  .summary-table tr:last-child td { border-bottom: none; }
+  .summary-table tr:hover td { background: #fafbfd; }
+  .sbadge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; }
+  .sbadge.yes { background: rgba(5,150,105,0.1); color: var(--yes); }
+  .sbadge.no  { background: rgba(220,38,38,0.08); color: var(--no); }
+  .sbadge.mt  { background: var(--surface2); color: var(--text-muted); }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border-radius: 14px; padding: 32px; max-width: 540px; width: 92%; box-shadow: 0 20px 60px rgba(0,0,0,0.18); }
+  .modal h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .modal p { font-size: 13px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.6; }
+  .mfield { margin-bottom: 14px; }
+  .mfield label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  .mfield input, .mfield textarea { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Barlow', sans-serif; font-size: 13px; background: var(--surface2); color: var(--text); outline: none; transition: border-color 0.15s; }
+  .mfield input:focus, .mfield textarea:focus { border-color: var(--accent); }
+  .mfield textarea { min-height: 130px; resize: vertical; font-size: 11px; font-family: monospace; }
+  .copy-row { display: flex; gap: 8px; }
+  .copy-row input { flex: 1; font-size: 12px; }
+  .copy-btn { padding: 10px 16px; background: var(--accent); border: none; border-radius: 8px; color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; cursor: pointer; white-space: nowrap; transition: background 0.15s; }
+  .copy-btn:hover { background: #c0285a; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+  .btn-sec { padding: 9px 20px; border: 1.5px solid var(--border); border-radius: 8px; background: none; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; color: var(--text-muted); transition: all 0.15s; }
+  .btn-sec:hover { border-color: var(--text); color: var(--text); }
+  .btn-pri { padding: 9px 20px; background: var(--accent); border: none; border-radius: 8px; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; color: #fff; transition: background 0.15s; }
+  .btn-pri:hover { background: #c0285a; }
+  .uchk-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+  .uchk-row label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+
+  .save-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; z-index: 100; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); }
+  .save-info { font-size: 12px; color: var(--text-muted); }
+  .saved-msg { font-size: 12px; color: var(--yes); opacity: 0; transition: opacity 0.3s; font-weight: 500; }
+  .saved-msg.show { opacity: 1; }
+
+  .table-view.hidden { display: none; }
+  .summary-grid { display: none; }
+  .summary-grid.active { display: block; }
+
+  @media (max-width: 768px) {
+    header, .user-bar, .toolbar { padding-left: 16px; padding-right: 16px; }
+    .container { padding: 0 10px; }
+    .organizer { display: none; }
+    header::after { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">Veneto · Friuli V.G. · Trento · Bolzano</div>
+  <h1>Calendario Triveneto<br><span>Donne 2026</span></h1>
+  <div class="header-sub">Esordienti · Allieve</div>
+  <div class="stats-bar">
+    <div class="stat"><span class="stat-value yes" id="yes-count">0</span><span class="stat-label">Disponibile</span></div>
+    <div class="stat"><span class="stat-value no"  id="no-count">0</span><span class="stat-label">Non Disponibile</span></div>
+    <div class="stat"><span class="stat-value pend" id="pending-count">0</span><span class="stat-label">Da Confermare</span></div>
+    <div class="stat"><span class="stat-value" id="total-count">35</span><span class="stat-label">Gare Totali</span></div>
+  </div>
+</header>
+
+<div class="user-bar">
+  <span class="user-bar-label">Tecnico:</span>
+  <div class="user-chips" id="user-chips"></div>
+  <button class="add-user-btn" onclick="promptAddUser()">+ Aggiungi Tecnico</button>
+</div>
+
+<div class="toolbar">
+  <button class="tb-btn" onclick="openShareModal()">
+    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    Condividi Link
+  </button>
+  <button class="tb-btn" onclick="openEmailModal()">
+    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+    Invia Email
+  </button>
+  <button class="tb-btn" onclick="openSetup()">
+    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Setup Sync
+  </button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" onclick="exportExcel()">
+    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    Esporta Excel
+  </button>
+  <button class="tb-btn" onclick="exportCSV()">
+    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+    Esporta CSV
+  </button>
+  <div class="tb-sep"></div>
+  <div class="view-toggle">
+    <button class="vt-btn active" id="vt-table" onclick="setView('table')">Lista</button>
+    <button class="vt-btn" id="vt-summary" onclick="setView('summary')">Riepilogo</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="table-view" id="table-view"></div>
+  <div class="summary-grid" id="summary-view"></div>
+</div>
+
+<!-- SHARE MODAL -->
+<div class="modal-overlay" id="share-modal">
+  <div class="modal">
+    <h3>🔗 Condividi il Calendario</h3>
+    <p>Chiunque abbia questo file HTML può aprirlo nel proprio browser e inserire le proprie disponibilità — ogni persona usa il proprio computer e i dati vengono salvati localmente. Per condividere le disponibilità compilate usa <strong>Invia Email</strong> o <strong>Esporta Excel</strong>.</p>
+    <div class="mfield">
+      <label>URL pagina corrente</label>
+      <div class="copy-row">
+        <input type="text" id="share-url" readonly>
+        <button class="copy-btn" onclick="copyShareUrl()">Copia</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-sec" onclick="closeModal('share-modal')">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- EMAIL MODAL -->
+<div class="modal-overlay" id="email-modal">
+  <div class="modal">
+    <h3>✉️ Invia Disponibilità</h3>
+    <p>Genera un'email con il riepilogo delle disponibilità da inviare all'allenatore o alla società.</p>
+    <div class="mfield">
+      <label>Destinatario</label>
+      <input type="email" id="email-to" placeholder="allenatore@squadra.it">
+    </div>
+    <div class="mfield">
+      <label>Includi tecnici</label>
+      <div class="uchk-row" id="email-user-checks"></div>
+    </div>
+    <div class="mfield">
+      <label>Anteprima testo</label>
+      <textarea id="email-preview" readonly></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-sec" onclick="closeModal('email-modal')">Annulla</button>
+      <button class="btn-pri" onclick="sendEmail()">📧 Apri in Mail</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP JSONBIN MODAL -->
+<div class="modal-overlay" id="setup-modal">
+  <div class="modal" style="max-width:580px">
+    <h3>⚙️ Configurazione Database Condiviso</h3>
+    <p>Per sincronizzare le disponibilità in tempo reale tra tutti i tecnici usiamo <strong>JSONBin.io</strong> — gratuito, nessuna registrazione complicata.</p>
+
+    <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:14px 16px;margin-bottom:18px;font-size:13px;line-height:1.7">
+      <strong>📋 Istruzioni (3 minuti):</strong><br>
+      1. Vai su <a href="https://jsonbin.io" target="_blank" style="color:var(--accent)">jsonbin.io</a> e crea un account gratuito<br>
+      2. Vai in <strong>API Keys</strong> → crea una nuova Master Key<br>
+      3. Incollala qui sotto e clicca <strong>Crea Database</strong><br>
+      4. Copia il <strong>Bin ID</strong> che appare e condividilo con gli altri tecnici<br>
+      5. Gli altri tecnici inseriscono la stessa API Key + Bin ID per connettersi
+    </div>
+
+    <div class="mfield">
+      <label>Master API Key <span style="font-weight:400;text-transform:none;letter-spacing:0">(da jsonbin.io → API Keys)</span></label>
+      <input type="text" id="setup-apikey" placeholder="$2a$10$..." style="font-family:monospace;font-size:12px">
+    </div>
+    <div class="mfield">
+      <label>Bin ID <span style="font-weight:400;text-transform:none;letter-spacing:0">(lascia vuoto per crearne uno nuovo)</span></label>
+      <input type="text" id="setup-binid" placeholder="67a3f... (solo se ti è già stato condiviso)" style="font-family:monospace;font-size:12px">
+    </div>
+
+    <div id="setup-result-box" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px 16px;margin-bottom:14px;font-size:13px">
+      ✅ <strong>Database creato!</strong> Il tuo Bin ID è:<br>
+      <code id="setup-binid-result" style="font-size:13px;background:#e8f5e9;padding:4px 8px;border-radius:4px;display:inline-block;margin-top:6px;user-select:all"></code><br>
+      <span style="color:var(--text-muted);font-size:12px;margin-top:6px;display:block">📌 Condividi questo ID con gli altri tecnici, insieme alla API Key</span>
+    </div>
+
+    <p id="setup-status" style="font-size:13px;color:var(--accent);min-height:18px"></p>
+    <div class="modal-actions">
+      <button class="btn-sec" onclick="resetSetup()" style="margin-right:auto;font-size:11px;color:var(--no);border-color:rgba(220,38,38,0.3)" title="Rimuovi configurazione locale">Reset</button>
+      <button class="btn-sec" onclick="closeModal('setup-modal')">Annulla</button>
+      <button class="btn-pri" onclick="submitSetup()">⚡ Connetti / Crea Database</button>
+    </div>
+  </div>
+</div>
+
+<div class="save-bar">
+  <span class="save-info" style="display:flex;align-items:center;gap:10px">
+    <span style="display:flex;align-items:center;gap:6px">
+      <span id="sync-dot" style="width:8px;height:8px;border-radius:50%;background:var(--text-muted);display:inline-block;flex-shrink:0"></span>
+      <span id="sync-status" style="font-size:12px;color:var(--text-muted)">Offline</span>
+    </span>
+    <span style="color:var(--border)">·</span>
+    <span id="last-saved" style="font-size:12px;color:var(--text-muted)"></span>
+    <span style="color:var(--border)">·</span>
+    <button onclick="openSetup()" style="background:none;border:none;font-size:12px;color:var(--text-muted);cursor:pointer;padding:0;text-decoration:underline">⚙️ Setup</button>
+    <button onclick="syncFromServer()" style="background:none;border:none;font-size:12px;color:var(--text-muted);cursor:pointer;padding:0;text-decoration:underline">↻ Aggiorna</button>
+  </span>
+  <span class="saved-msg" id="saved-msg">✓ Sincronizzato</span>
+</div>
+
+
+<script>
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  CONFIGURAZIONE JSONBIN — da compilare una volta sola           ║
+// ║  Segui le istruzioni nel modal di setup al primo avvio          ║
+// ╚══════════════════════════════════════════════════════════════════╝
+const CFG_KEY = 'cal_triv_jsonbin_cfg';
+
+function getCfg() {
+  try { return JSON.parse(localStorage.getItem(CFG_KEY)||'null'); } catch { return null; }
+}
+function saveCfg(c) { localStorage.setItem(CFG_KEY, JSON.stringify(c)); }
+
+// ─── DATI GARE ────────────────────────────────────────────────────────────────
+const races = [
+  {month:"Marzo",    day:22, cat:"D/ALL-ESORD",   loc:"Vò Vecchio (PD)",              den:'15° Trofeo Vini "Terre Gaie" - 19^ M.O. G.Sella',       org:"Scuola Ciclismo Vò"},
+  {month:"Aprile",   day:12, cat:"D/ALL-ESORD",   loc:"Resana (TV)",                  den:'G.P. "Resana"',                                          org:"U.C. Godigese Abra Iride"},
+  {month:"Aprile",   day:19, cat:"D/ALL-ESORD",   loc:"Pianezze (VI)",                den:"Pianezze Girl's Road Classic",                            org:"VC Città di Marostica"},
+  {month:"Aprile",   day:25, cat:"D/ALL-ESORD",   loc:"Dro (TN)",                     den:'33° Tr. "Loris Angeli" - 54° Tr. "Prugno Fiorito"',      org:"Ciclistica Dro"},
+  {month:"Aprile",   day:26, cat:"D/ALL-ESORD",   loc:"Maser (TV)",                   den:'Giornata Rosa G.P. "Primavera"',                         org:"U.C. Asolana"},
+  {month:"Maggio",   day:1,  cat:"D/ALL-ESORD",   loc:"Illasi (VR)",                  den:"Trofeo Comune di Illasi",                                org:"UC Val d'Illasi"},
+  {month:"Maggio",   day:3,  cat:"D/ALL-ESORD",   loc:"Bovolone (VR)",                den:'2° Tr. "General Store" - 22° GP Rosa Città di Bovolone', org:"G.S. Luc Bovolone"},
+  {month:"Maggio",   day:10, cat:"D/ALL-ESORD",   loc:"Mareno di Piave (TV)",         den:"Giornata del Ciclismo Pedale Marenese G.Bartali",        org:"Pedale Marenese G.Bartali"},
+  {month:"Maggio",   day:17, cat:"D/ALL-ESORD",   loc:"San Marco di Mereto (UD)",     den:'XX° Tr. "Asd Don Bosco" - XVI° Tr. "Aut. Chiarcosso"',  org:"ASD Don Bosco"},
+  {month:"Maggio",   day:24, cat:"D/ALL-ESORD",   loc:"Palù di Giovo (TN)",           den:'6° Trofeo "Gilberto Simoni"',                            org:"U.S. Montecorona"},
+  {month:"Maggio",   day:31, cat:"D/ALL-ESORD",   loc:"Piove di Sacco (PD)",          den:"Gara Veneto Project",                                    org:"Veneto Project Team"},
+  {month:"Giugno",   day:2,  cat:"D/ALL-ESORD",   loc:"Cappella di Scorzè (VE)",      den:"Criterium",                                              org:"Veneto ASD"},
+  {month:"Giugno",   day:6,  cat:"D-ALLIEVE",     loc:"Lugo di Grezzana (VR)",        den:"GP Cons. Marmisti Valpantena – CRONOSCALATA Bruno Gaiga",org:"C.A.M.P.I.",             special:"CRONO"},
+  {month:"Giugno",   day:7,  cat:"D/ALL-ESORD",   loc:"Romagnano (TN)",               den:'Trofeo "Banca per il Trentino A.A." - GP Rothoblaas',   org:"C.C. Forti e Veloci"},
+  {month:"Giugno",   day:14, cat:"D/ALL-ESORD",   loc:"Noventa Padovana (PD)",        den:'1° G.P. "Noventana - Padova Diesel"',                   org:"G.C. Noventana"},
+  {month:"Giugno",   day:21, cat:"D/ALL-ESORD",   loc:"Arcade (TV)",                  den:"Trofeo Pavan",                                          org:"Young Team Arcade"},
+  {month:"Giugno",   day:24, cat:"D/ALLIEVE",     loc:"",                             den:"CAMPIONATO ITALIANO CRONO IND/LE",                      org:"",                       special:"CAMPIONATO ITALIANO"},
+  {month:"Giugno",   day:26, cat:"D/JUN-ALL-ES",  loc:"Tre Ville (TN)",               den:"5^ Notturna Castel Romano - 10° Mem. Vito Favero",      org:"S.C. Storo"},
+  {month:"Giugno",   day:27, cat:"D/ALL-ESORD",   loc:"Bondone (TN)",                 den:'5^ Crono "Idroland"',                                   org:"S.C. Storo",             special:"CRONO"},
+  {month:"Giugno",   day:28, cat:"D/EL-UN-JU-AL", loc:"Tre Ville (TN)",               den:'5^ Coppa "Giudicarie Centrali"',                        org:"S.C. Storo"},
+  {month:"Luglio",   day:4,  cat:"D/ALL-ESORD",   loc:"Laives (BZ)",                  den:"CAMPIONATO ITALIANO STRADA",                            org:"Raffeisen Libertas Laives",special:"CAMPIONATO ITALIANO"},
+  {month:"Luglio",   day:12, cat:"D/ALL-ESORD",   loc:"Ponte di Piave (TV) – Levada", den:'San Gabriel Gold Race - 4° Trofeo "Renzo Tonon"',       org:"GS San Gabriel"},
+  {month:"Luglio",   day:19, cat:"D/ALL-ESORD",   loc:"Nervesa della Battaglia (TV)", den:'4° G.P. "Comune di Nervesa"',                           org:"GC Postioma"},
+  {month:"Luglio",   day:26, cat:"D/ALL-ESORD",   loc:"Tarzo (TV)",                   den:'11° Trofeo "Prealpi in Rosa"',                          org:"Frare - De Nardi"},
+  {month:"Agosto",   day:1,  cat:"D/ALL-ESORD",   loc:"Faè di Oderzo (TV)",           den:"Gara",                                                  org:""},
+  {month:"Agosto",   day:14, cat:"D/ALL-ESORD",   loc:"Scorzè (VE)",                  den:"Gara",                                                  org:"",                       special:"TIPO PISTA"},
+  {month:"Agosto",   day:23, cat:"D/ALL-ESORD",   loc:"Noventa di Piave (VE)",        den:"Giro dei 2 Comuni - 11^ Giornata Rosa",                 org:"Tergas Avis Noventa"},
+  {month:"Agosto",   day:27, cat:"D/ALL-ESORD",   loc:"Villaverla (VI)",              den:"Gara",                                                  org:"",                       special:"TIPO PISTA"},
+  {month:"Agosto",   day:28, cat:"D/ALL-ESORD",   loc:"Castelfranco Veneto (TV)",     den:"Trittico Rosa della Marca Trevigiana (1/3)",            org:"U.C. Giorgione"},
+  {month:"Agosto",   day:29, cat:"D/ALL-ESORD",   loc:"Moriago della Battaglia (TV)", den:"Trittico Rosa della Marca Trevigiana (2/3)",            org:"U.C. Giorgione"},
+  {month:"Agosto",   day:30, cat:"D/ALL-ESORD",   loc:"Moriago della Battaglia (TV)", den:"Trittico Rosa della Marca Trevigiana (3/3)",            org:"U.C. Giorgione"},
+  {month:"Settembre",day:6,  cat:"D/ALL-ESORD",   loc:"Villaverla (VI)",              den:'13° Trofeo "A. Comberlato"',                            org:"G.S. Villaverla"},
+  {month:"Settembre",day:12, cat:"D/ALL-ESORD",   loc:"Borgo Valsugana (TN)",         den:"26^ Coppa Rosa (All) - 19^ Coppa di Sera (Eso)",       org:"Veloce Club Borgo"},
+  {month:"Settembre",day:26, cat:"D-ALLIEVE",     loc:"Palù di Giovo (TN)",           den:"CRONO Festa dell'Uva",                                 org:"US Montecorona",         special:"CRONO"},
+  {month:"Settembre",day:27, cat:"D/ALL-ESORD",   loc:"Bolzano (BZ)",                 den:"4^ Coppa Amelia, Vittorio e Primo Bianchi – A. Zanon", org:"Ciclistica Adriana Bolzano"},
+];
+const months = [...new Set(races.map(r => r.month))];
+
+// ─── STATO LOCALE ─────────────────────────────────────────────────────────────
+const UKEY = 'cal_triv_2026_users';
+let remoteData = {};        // dati dal server (unica fonte di verità)
+let users = [];
+let activeUser = '';
+let currentView = 'table';
+let syncInterval = null;
+let isSaving = false;
+
+// ─── JSONBIN API ──────────────────────────────────────────────────────────────
+async function jbRead() {
+  const cfg = getCfg();
+  if (!cfg) return null;
+  try {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}/latest`, {
+      headers: { 'X-Master-Key': cfg.apiKey }
+    });
+    if (!r.ok) return null;
+    const j = await r.json();
+    return j.record || {};
+  } catch { return null; }
+}
+
+async function jbWrite(data) {
+  const cfg = getCfg();
+  if (!cfg) return false;
+  try {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': cfg.apiKey },
+      body: JSON.stringify(data)
+    });
+    return r.ok;
+  } catch { return false; }
+}
+
+async function jbCreate(apiKey) {
+  try {
+    const r = await fetch('https://api.jsonbin.io/v3/b', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': apiKey,
+        'X-Bin-Name': 'Calendario Triveneto 2026',
+        'X-Bin-Private': 'true'
+      },
+      body: JSON.stringify({ tecnici: [], disponibilita: {} })
+    });
+    if (!r.ok) return null;
+    const j = await r.json();
+    return j.metadata?.id || null;
+  } catch { return null; }
+}
+
+// ─── SYNC ────────────────────────────────────────────────────────────────────
+function setSyncStatus(status) {
+  // status: 'ok' | 'saving' | 'error' | 'offline'
+  const el = document.getElementById('sync-status');
+  const dot = document.getElementById('sync-dot');
+  const map = {
+    ok:      { text:'Sincronizzato',  color:'var(--yes)',       blink:false },
+    saving:  { text:'Salvataggio…',   color:'var(--accent2)',   blink:true  },
+    error:   { text:'Errore sync',    color:'var(--no)',        blink:false },
+    offline: { text:'Offline',        color:'var(--text-muted)',blink:false },
+    loading: { text:'Caricamento…',   color:'var(--accent2)',   blink:true  },
+  };
+  const s = map[status] || map.offline;
+  el.textContent = s.text;
+  dot.style.background = s.color;
+  dot.style.animation = s.blink ? 'blink 1s infinite' : 'none';
+}
+
+async function syncFromServer(silent=false) {
+  if (!getCfg()) return;
+  if (!silent) setSyncStatus('loading');
+  const data = await jbRead();
+  if (data === null) { setSyncStatus('error'); return; }
+
+  // Aggiorna utenti se ci sono nuovi dal server
+  const serverUsers = data.tecnici || [];
+  serverUsers.forEach(u => { if (!users.includes(u)) users.push(u); });
+  if (serverUsers.length > 0 && users.length === 0) users = [...serverUsers];
+  if (users.length === 0) users = ['Tecnico'];
+  saveUsersLocal();
+
+  remoteData = data.disponibilita || {};
+  renderUserChips();
+  renderCalendar();
+  updateStats();
+  setSyncStatus('ok');
+  document.getElementById('last-saved').textContent =
+    'Aggiornato: ' + new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+}
+
+async function pushToServer() {
+  if (!getCfg() || isSaving) return;
+  isSaving = true;
+  setSyncStatus('saving');
+  const payload = { tecnici: users, disponibilita: remoteData };
+  const ok = await jbWrite(payload);
+  isSaving = false;
+  setSyncStatus(ok ? 'ok' : 'error');
+  if (ok) document.getElementById('last-saved').textContent =
+    'Salvato: ' + new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+}
+
+function startPolling() {
+  if (syncInterval) clearInterval(syncInterval);
+  syncInterval = setInterval(() => syncFromServer(true), 30000); // ogni 30s
+}
+
+// ─── USERS ────────────────────────────────────────────────────────────────────
+function saveUsersLocal() { localStorage.setItem(UKEY, JSON.stringify(users)); }
+function loadUsersLocal() {
+  try { const u=JSON.parse(localStorage.getItem(UKEY)); if(u&&u.length) return u; } catch {}
+  return ['Tecnico'];
+}
+
+function renderUserChips() {
+  const c = document.getElementById('user-chips'); c.innerHTML = '';
+  users.forEach(u => {
+    const b = document.createElement('button');
+    b.className = 'user-chip' + (u===activeUser?' active':'');
+    b.textContent = u;
+    b.onclick = () => { activeUser=u; renderUserChips(); updateStats(); };
+    c.appendChild(b);
+  });
+}
+
+async function promptAddUser() {
+  const n = (prompt('Nome tecnico:')||'').trim();
+  if (!n) return;
+  if (users.includes(n)) { alert('Tecnico già presente.'); return; }
+  users.push(n); saveUsersLocal(); activeUser = n;
+  renderUserChips(); renderCalendar(); updateStats();
+  await pushToServer();
+}
+
+// ─── STATS ────────────────────────────────────────────────────────────────────
+function updateStats() {
+  const ud = remoteData[activeUser]||{};
+  let yes=0,no=0,pend=0;
+  races.forEach((_,i) => { const v=ud[i]||''; if(v==='yes')yes++; else if(v==='no')no++; else pend++; });
+  document.getElementById('yes-count').textContent=yes;
+  document.getElementById('no-count').textContent=no;
+  document.getElementById('pending-count').textContent=pend;
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function mapsUrl(loc) { return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc+', Italia')}`; }
+function renderCalendar() { renderTableView(); if(currentView==='summary') renderSummaryView(); }
+
+function renderTableView() {
+  const root = document.getElementById('table-view'); root.innerHTML='';
+  months.forEach(month => {
+    const mr = races.filter(r=>r.month===month);
+    const sec = document.createElement('div'); sec.className='month-section';
+    const uHeaders = users.map(u=>`<th><div class="avail-col-header"><span class="avail-col-name">${u}</span><span style="font-weight:400;font-size:10px;letter-spacing:1px">tecnico</span></div></th>`).join('');
+    sec.innerHTML=`
+      <div class="month-header">
+        <span class="month-title">${month}</span>
+        <div class="month-line"></div>
+        <span class="month-count">${mr.length} gare</span>
+      </div>
+      <table><thead><tr>
+        <th>Gg</th><th>Categoria</th><th>Località</th><th>Denominazione</th><th>Organizzatrice</th>
+        ${uHeaders}
+      </tr></thead><tbody id="tb-${month.replace(/\s/g,'')}"></tbody></table>`;
+    root.appendChild(sec);
+    const tbody = sec.querySelector(`#tb-${month.replace(/\s/g,'')}`);
+    mr.forEach(race => {
+      const idx = races.indexOf(race);
+      const isCampio = race.special&&race.special.includes('CAMPIONATO');
+      const locCell = race.loc
+        ? `<a class="locality-link" href="${mapsUrl(race.loc)}" target="_blank"><svg width="10" height="12" viewBox="0 0 12 14" fill="currentColor"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z"/></svg>${race.loc}</a>`
+        : '<span style="color:var(--text-muted)">—</span>';
+      const denCell = race.den + (race.special?`<span class="special">${race.special}</span>`:'');
+      const uCells = users.map(u => {
+        const v = (remoteData[u]||{})[idx]||'';
+        return `<td><select class="avail-select ${v?'pres-'+v:''}" data-idx="${idx}" data-user="${u}" onchange="handleChange(this)">
+          <option value="">—</option>
+          <option value="yes"${v==='yes'?' selected':''}>✓ Disponibile</option>
+          <option value="no"${v==='no'?' selected':''}>✗ Non disponibile</option>
+        </select></td>`;
+      }).join('');
+      const tr = document.createElement('tr'); tr.className='race-row';
+      tr.innerHTML=`<td class="td-date">${race.day}</td><td><span class="cat-badge${isCampio?' campio':''}">${race.cat}</span></td><td>${locCell}</td><td class="denomination">${denCell}</td><td class="organizer">${race.org}</td>${uCells}`;
+      tbody.appendChild(tr);
+    });
+  });
+}
+
+function renderSummaryView() {
+  const root = document.getElementById('summary-view'); root.innerHTML='';
+  const sec = document.createElement('div'); sec.className='month-section';
+  const uHeaders = users.map(u=>`<th>${u}</th>`).join('');
+  let rows='';
+  races.forEach((race,idx)=>{
+    const isCampio = race.special&&race.special.includes('CAMPIONATO');
+    const uCells = users.map(u=>{
+      const v=(remoteData[u]||{})[idx]||'';
+      if(v==='yes') return `<td><span class="sbadge yes">✓ Sì</span></td>`;
+      if(v==='no')  return `<td><span class="sbadge no">✗ No</span></td>`;
+      return `<td><span class="sbadge mt">—</span></td>`;
+    }).join('');
+    rows+=`<tr>
+      <td style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;white-space:nowrap">${race.month} ${race.day}</td>
+      <td><span class="cat-badge${isCampio?' campio':''}">${race.cat}</span></td>
+      <td style="font-size:12px;max-width:260px">${race.den}${race.special?`<span class="special">${race.special}</span>`:''}</td>
+      ${uCells}
+    </tr>`;
+  });
+  sec.innerHTML=`
+    <div class="month-header" style="margin-top:24px">
+      <span class="month-title">Riepilogo Completo — Tutti i Tecnici</span>
+      <div class="month-line"></div>
+    </div>
+    <table class="summary-table"><thead><tr><th>Data</th><th>Cat.</th><th>Gara</th>${uHeaders}</tr></thead><tbody>${rows}</tbody></table>`;
+  root.appendChild(sec);
+}
+
+async function handleChange(sel) {
+  const idx=parseInt(sel.dataset.idx), user=sel.dataset.user, val=sel.value;
+  sel.className='avail-select'+(val?' pres-'+val:'');
+  if(!remoteData[user]) remoteData[user]={};
+  if(val) remoteData[user][idx]=val; else delete remoteData[user][idx];
+  updateStats();
+  if(currentView==='summary') renderSummaryView();
+  await pushToServer();
+}
+
+// ─── VIEW TOGGLE ──────────────────────────────────────────────────────────────
+function setView(v) {
+  currentView=v;
+  document.getElementById('table-view').classList.toggle('hidden',v!=='table');
+  document.getElementById('summary-view').classList.toggle('active',v==='summary');
+  document.getElementById('vt-table').classList.toggle('active',v==='table');
+  document.getElementById('vt-summary').classList.toggle('active',v==='summary');
+  if(v==='summary') renderSummaryView();
+}
+
+// ─── MODALS ───────────────────────────────────────────────────────────────────
+function openShareModal() {
+  document.getElementById('share-url').value = window.location.href;
+  document.getElementById('share-modal').classList.add('open');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function copyShareUrl() {
+  const inp=document.getElementById('share-url'); inp.select(); document.execCommand('copy');
+  const btn=inp.nextElementSibling; btn.textContent='✓ Copiato!';
+  setTimeout(()=>btn.textContent='Copia',1600);
+}
+function openEmailModal() {
+  const c=document.getElementById('email-user-checks'); c.innerHTML='';
+  users.forEach(u=>{
+    const lbl=document.createElement('label');
+    lbl.innerHTML=`<input type="checkbox" checked data-uname="${u}" onchange="updateEmailPreview()"> ${u}`;
+    c.appendChild(lbl);
+  });
+  updateEmailPreview();
+  document.getElementById('email-modal').classList.add('open');
+}
+function updateEmailPreview() {
+  const checked=[...document.querySelectorAll('#email-user-checks input:checked')].map(i=>i.dataset.uname);
+  const L={yes:'✓ Disponibile',no:'✗ Non disponibile',''    :'— Non risposto'};
+  let txt=`DISPONIBILITÀ GARE – Calendario Triveneto Donne 2026\nGenerato il ${new Date().toLocaleDateString('it-IT')}\n${'─'.repeat(52)}\n`;
+  let lastMonth='';
+  races.forEach((race,idx)=>{
+    if(race.month!==lastMonth){txt+=`\n${race.month.toUpperCase()}\n`; lastMonth=race.month;}
+    txt+=`  ${String(race.day).padStart(2)} | ${(race.loc||'—').padEnd(28)} | ${race.den}\n`;
+    checked.forEach(u=>{ txt+=`       ${u}: ${L[(remoteData[u]||{})[idx]||'']}\n`; });
+  });
+  document.getElementById('email-preview').value=txt;
+}
+function sendEmail() {
+  const to=document.getElementById('email-to').value;
+  const body=document.getElementById('email-preview').value;
+  const subj='Disponibilità Gare – Calendario Triveneto Donne 2026';
+  window.location.href=`mailto:${to}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+}
+
+// ─── EXPORT ───────────────────────────────────────────────────────────────────
+function exportExcel() {
+  const L={yes:'Disponibile',no:'Non disponibile',''    :'—'};
+  const headers=['Mese','Giorno','Categoria','Località','Denominazione','Organizzatrice',...users];
+  const rows=races.map((r,i)=>[r.month,r.day,r.cat,r.loc,r.den,r.org,...users.map(u=>L[(remoteData[u]||{})[i]||''])]);
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet([headers,...rows]);
+  ws['!cols']=[{wch:12},{wch:7},{wch:14},{wch:28},{wch:52},{wch:26},...users.map(()=>({wch:18}))];
+  XLSX.utils.book_append_sheet(wb,ws,'Disponibilità 2026');
+  XLSX.writeFile(wb,'calendario_triveneto_donne_2026.xlsx');
+}
+function exportCSV() {
+  const L={yes:'Disponibile',no:'Non disponibile',''    :'—'};
+  const rows=[['Mese','Giorno','Categoria','Località','Denominazione','Organizzatrice',...users]];
+  races.forEach((r,i)=>rows.push([r.month,r.day,r.cat,r.loc,r.den,r.org,...users.map(u=>L[(remoteData[u]||{})[i]||''])]));
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv); a.download='calendario_2026.csv'; a.click();
+}
+
+// ─── SETUP JSONBIN ────────────────────────────────────────────────────────────
+function openSetup() { document.getElementById('setup-modal').classList.add('open'); }
+
+async function submitSetup() {
+  const apiKey = document.getElementById('setup-apikey').value.trim();
+  const existingBin = document.getElementById('setup-binid').value.trim();
+  const statusEl = document.getElementById('setup-status');
+
+  if (!apiKey) { statusEl.textContent = '⚠️ Inserisci la API Key'; return; }
+  statusEl.textContent = '⏳ Verifico…';
+
+  let binId = existingBin;
+
+  if (!binId) {
+    // Crea nuovo bin
+    statusEl.textContent = '⏳ Creo il database condiviso…';
+    binId = await jbCreate(apiKey);
+    if (!binId) {
+      statusEl.textContent = '❌ Errore: API Key non valida o problema di rete. Controlla la chiave su jsonbin.io';
+      return;
+    }
+  } else {
+    // Testa bin esistente
+    const cfg = {apiKey, binId};
+    saveCfg(cfg);
+    const test = await jbRead();
+    if (test === null) {
+      statusEl.textContent = '❌ Bin ID o API Key non validi. Ricontrolla.';
+      return;
+    }
+  }
+
+  saveCfg({apiKey, binId});
+  statusEl.textContent = '✓ Connesso!';
+  document.getElementById('setup-binid-result').textContent = binId;
+  document.getElementById('setup-result-box').style.display = 'block';
+
+  setTimeout(async () => {
+    closeModal('setup-modal');
+    await syncFromServer();
+    startPolling();
+  }, 1500);
+}
+
+async function resetSetup() {
+  if (!confirm('Sei sicuro? Questo rimuove la configurazione locale (i dati rimangono su JSONBin).')) return;
+  localStorage.removeItem(CFG_KEY);
+  location.reload();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+(async function init() {
+  users = loadUsersLocal();
+  activeUser = users[0];
+
+  // Aggiungi stile blink
+  const style = document.createElement('style');
+  style.textContent = `@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }`;
+  document.head.appendChild(style);
+
+  renderUserChips();
+  renderCalendar();
+  updateStats();
+
+  const cfg = getCfg();
+  if (!cfg) {
+    setSyncStatus('offline');
+    document.getElementById('last-saved').textContent = 'Non configurato — clicca ⚙️ Setup';
+    openSetup();
+  } else {
+    await syncFromServer();
+    startPolling();
+  }
+})();
+</script>
+</body>
+</html>
