@@ -10,13 +10,41 @@
   :root {
     --bg: #f4f5f7; --surface: #ffffff; --surface2: #eef0f4; --border: #dde0e8;
     --accent: #d63468; --accent2: #d97706; --text: #1a1a2e; --text-muted: #7a7a9a;
-    --yes: #059669; --no: #dc2626;
+    --yes: #059669; --no: #dc2626; --danger: #fee2e2; --online: #059669; --offline: #d97706;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; font-weight: 300; min-height: 100vh; padding-bottom: 70px; }
 
+  /* ── SETUP SCREEN ── */
+  #setup-screen { position: fixed; inset: 0; background: var(--bg); z-index: 999; display: flex; align-items: center; justify-content: center; }
+  #setup-screen.hidden { display: none; }
+  .setup-card { background: var(--surface); border-radius: 16px; padding: 40px; max-width: 480px; width: 92%; box-shadow: 0 8px 40px rgba(0,0,0,0.12); }
+  .setup-card h2 { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text); margin-bottom: 6px; }
+  .setup-card h2 span { color: var(--accent); }
+  .setup-card p { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; }
+  .setup-field { margin-bottom: 16px; }
+  .setup-field label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  .setup-field input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 9px; font-family: 'Barlow', sans-serif; font-size: 14px; background: var(--surface2); color: var(--text); outline: none; transition: border-color 0.15s; }
+  .setup-field input:focus { border-color: var(--accent); }
+  .setup-field small { display: block; margin-top: 5px; font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+  .setup-btn { width: 100%; padding: 12px; background: var(--accent); border: none; border-radius: 9px; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #fff; cursor: pointer; transition: background 0.15s; margin-top: 6px; }
+  .setup-btn:hover { background: #c0285a; }
+  .setup-err { color: var(--no); font-size: 12px; margin-top: 8px; display: none; }
+  .setup-err.show { display: block; }
+
+  /* ── SYNC STATUS ── */
+  .sync-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; }
+  .sync-pill.online  { background: rgba(5,150,105,0.1);  color: var(--online); }
+  .sync-pill.offline { background: rgba(217,119,6,0.1);  color: var(--offline); }
+  .sync-pill.syncing { background: rgba(91,91,160,0.1); color: #5b5ba0; }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .sync-dot.pulse { animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* ── HEADER ── */
   header { background: linear-gradient(135deg, #fff0f4 0%, #fce4ec 50%, #ffd6e7 100%); border-bottom: 2px solid var(--accent); padding: 32px 40px 24px; position: relative; overflow: hidden; }
   header::after { content: '♀'; position: absolute; right: 40px; top: 50%; transform: translateY(-50%); font-size: 120px; color: rgba(214,52,104,0.07); line-height: 1; }
+  .header-top { display: flex; align-items: flex-start; justify-content: space-between; }
   .header-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
   h1 { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(26px, 5vw, 50px); font-weight: 800; line-height: 1; text-transform: uppercase; color: var(--text); }
   h1 span { color: var(--accent); }
@@ -27,37 +55,59 @@
   .stat-value.yes { color: var(--yes); } .stat-value.no { color: var(--no); } .stat-value.pend { color: var(--text-muted); }
   .stat-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
 
+  /* ── TECNICO BAR ── */
   .user-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 40px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .user-bar-label { font-size: 11px; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap; }
   .user-chips { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
-  .user-chip { padding: 5px 16px; border-radius: 20px; border: 1.5px solid var(--border); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; cursor: pointer; background: var(--surface2); color: var(--text-muted); transition: all 0.15s; }
+  .user-chip { padding: 5px 16px; border-radius: 20px; border: 1.5px solid var(--border); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; background: var(--surface2); color: var(--text-muted); transition: all 0.15s; }
   .user-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
   .user-chip:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
   .add-user-btn { padding: 5px 14px; border-radius: 20px; border: 1.5px dashed var(--border); font-size: 13px; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.15s; font-family: 'Barlow', sans-serif; }
   .add-user-btn:hover { border-color: var(--accent); color: var(--accent); }
 
+  /* ── TOOLBAR ── */
   .toolbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 40px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .tb-btn { display: inline-flex; align-items: center; gap: 7px; padding: 7px 16px; border-radius: 7px; border: 1.5px solid var(--border); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; background: var(--surface); color: var(--text-muted); transition: all 0.15s; }
   .tb-btn:hover { border-color: var(--accent); color: var(--accent); background: #fff0f4; }
+  .tb-btn.edit-mode-btn { border-color: var(--accent2); color: var(--accent2); }
+  .tb-btn.edit-mode-btn:hover { background: #fff8ee; }
   .tb-sep { width: 1px; height: 28px; background: var(--border); margin: 0 2px; }
   .view-toggle { display: flex; border: 1.5px solid var(--border); border-radius: 7px; overflow: hidden; margin-left: auto; }
   .vt-btn { padding: 6px 14px; background: none; border: none; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); transition: all 0.15s; }
   .vt-btn.active { background: var(--accent); color: #fff; }
 
+  /* ── EDITOR PANEL ── */
+  .editor-panel { background: #fff8ee; border-bottom: 2px solid var(--accent2); padding: 16px 40px; display: none; }
+  .editor-panel.open { display: block; }
+  .editor-panel-title { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent2); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .editor-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+  .ef-group { display: flex; flex-direction: column; gap: 4px; }
+  .ef-group label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); }
+  .ef-group input, .ef-group select { padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 7px; font-family: 'Barlow', sans-serif; font-size: 13px; background: var(--surface); color: var(--text); outline: none; transition: border-color 0.15s; }
+  .ef-group input:focus, .ef-group select:focus { border-color: var(--accent2); }
+  .ef-group.wide input { width: 260px; }
+  .ef-group.med input, .ef-group.med select { width: 160px; }
+  .ef-group.sm input, .ef-group.sm select { width: 90px; }
+  .ef-actions { display: flex; gap: 8px; align-items: flex-end; }
+  .ef-btn { padding: 7px 18px; border-radius: 7px; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border: none; transition: all 0.15s; white-space: nowrap; }
+  .ef-btn.save { background: var(--accent2); color: #fff; }
+  .ef-btn.save:hover { background: #b45309; }
+  .ef-btn.cancel { background: none; border: 1.5px solid var(--border); color: var(--text-muted); }
+  .editor-hint { font-size: 12px; color: var(--text-muted); margin-top: 10px; }
+
+  /* ── TABLE ── */
   .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
   .month-section { margin-top: 28px; }
   .month-header { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; padding: 0 4px; }
   .month-title { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 4px; color: var(--text-muted); }
   .month-line { flex: 1; height: 1px; background: var(--border); }
   .month-count { font-size: 11px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; }
-
   table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
   thead th { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); background: #fafbfc; white-space: nowrap; }
   tr.race-row { border-bottom: 1px solid rgba(221,224,232,0.5); transition: background 0.12s; }
   tr.race-row:last-child { border-bottom: none; }
   tr.race-row:hover { background: #fafbfd; }
   td { padding: 10px 12px; vertical-align: middle; }
-
   .td-date { font-family: 'Barlow Condensed', sans-serif; font-size: 21px; font-weight: 700; color: var(--text); min-width: 42px; white-space: nowrap; }
   .cat-badge { display: inline-block; background: rgba(214,52,104,0.08); border: 1px solid rgba(214,52,104,0.2); color: var(--accent); font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; padding: 2px 7px; border-radius: 3px; text-transform: uppercase; white-space: nowrap; }
   .cat-badge.campio { background: rgba(217,119,6,0.08); border-color: rgba(217,119,6,0.25); color: var(--accent2); }
@@ -66,111 +116,220 @@
   .denomination { color: var(--text); font-weight: 400; max-width: 300px; font-size: 13px; }
   .denomination .special { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; color: var(--accent2); text-transform: uppercase; display: block; margin-top: 2px; }
   .organizer { color: var(--text-muted); font-size: 11.5px; max-width: 160px; }
-
-  .avail-select { appearance: none; -webkit-appearance: none; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 6px; color: var(--text-muted); font-family: 'Barlow', sans-serif; font-size: 12px; padding: 5px 22px 5px 8px; cursor: pointer; width: 120px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%237a7a9a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 7px center; outline: none; transition: border-color 0.15s, background 0.15s; }
+  .row-actions { display: flex; gap: 6px; white-space: nowrap; }
+  .row-act-btn { padding: 4px 10px; border-radius: 5px; font-size: 11px; font-weight: 700; font-family: 'Barlow Condensed', sans-serif; cursor: pointer; border: 1.5px solid var(--border); background: none; color: var(--text-muted); transition: all 0.12s; display: none; }
+  .editing-mode .row-act-btn { display: inline-flex; align-items: center; gap: 4px; }
+  .row-act-btn.edit-btn:hover { border-color: var(--accent2); color: var(--accent2); background: #fff8ee; }
+  .row-act-btn.del-btn:hover { border-color: var(--no); color: var(--no); background: var(--danger); }
+  .avail-select { appearance: none; -webkit-appearance: none; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 6px; color: var(--text-muted); font-family: 'Barlow', sans-serif; font-size: 12px; padding: 5px 22px 5px 8px; cursor: pointer; width: 130px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%237a7a9a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 7px center; outline: none; transition: border-color 0.15s, background 0.15s; }
   .avail-select.pres-yes { border-color: rgba(5,150,105,0.45); color: var(--yes); background-color: rgba(5,150,105,0.07); }
-  .avail-select.pres-no  { border-color: rgba(220,38,38,0.45);  color: var(--no);  background-color: rgba(220,38,38,0.07);  }
+  .avail-select.pres-no  { border-color: rgba(220,38,38,0.45); color: var(--no); background-color: rgba(220,38,38,0.07); }
   .avail-col-header { display: flex; flex-direction: column; gap: 1px; }
   .avail-col-name { font-weight: 800; }
 
-  /* SUMMARY */
+  /* ── SUMMARY ── */
   .summary-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); font-size: 13px; }
   .summary-table th { background: #fafbfc; border-bottom: 1px solid var(--border); padding: 10px 14px; text-align: left; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; }
   .summary-table td { padding: 10px 14px; border-bottom: 1px solid rgba(221,224,232,0.4); vertical-align: middle; }
   .summary-table tr:last-child td { border-bottom: none; }
-  .summary-table tr:hover td { background: #fafbfd; }
   .sbadge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; }
   .sbadge.yes { background: rgba(5,150,105,0.1); color: var(--yes); }
   .sbadge.no  { background: rgba(220,38,38,0.08); color: var(--no); }
   .sbadge.mt  { background: var(--surface2); color: var(--text-muted); }
 
-  /* MODAL */
+  /* ── MODALS ── */
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; align-items: center; justify-content: center; }
   .modal-overlay.open { display: flex; }
-  .modal { background: var(--surface); border-radius: 14px; padding: 32px; max-width: 540px; width: 92%; box-shadow: 0 20px 60px rgba(0,0,0,0.18); }
+  .modal { background: var(--surface); border-radius: 14px; padding: 32px; max-width: 560px; width: 92%; box-shadow: 0 20px 60px rgba(0,0,0,0.18); max-height: 90vh; overflow-y: auto; }
   .modal h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
   .modal p { font-size: 13px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.6; }
   .mfield { margin-bottom: 14px; }
   .mfield label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
-  .mfield input, .mfield textarea { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Barlow', sans-serif; font-size: 13px; background: var(--surface2); color: var(--text); outline: none; transition: border-color 0.15s; }
-  .mfield input:focus, .mfield textarea:focus { border-color: var(--accent); }
+  .mfield input, .mfield select, .mfield textarea { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Barlow', sans-serif; font-size: 13px; background: var(--surface2); color: var(--text); outline: none; transition: border-color 0.15s; }
+  .mfield input:focus, .mfield select:focus, .mfield textarea:focus { border-color: var(--accent); }
   .mfield textarea { min-height: 130px; resize: vertical; font-size: 11px; font-family: monospace; }
+  .mfield-row { display: flex; gap: 12px; }
+  .mfield-row .mfield { flex: 1; }
   .copy-row { display: flex; gap: 8px; }
   .copy-row input { flex: 1; font-size: 12px; }
-  .copy-btn { padding: 10px 16px; background: var(--accent); border: none; border-radius: 8px; color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; cursor: pointer; white-space: nowrap; transition: background 0.15s; }
+  .copy-btn { padding: 10px 16px; background: var(--accent); border: none; border-radius: 8px; color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; cursor: pointer; white-space: nowrap; }
   .copy-btn:hover { background: #c0285a; }
-  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap; }
   .btn-sec { padding: 9px 20px; border: 1.5px solid var(--border); border-radius: 8px; background: none; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; color: var(--text-muted); transition: all 0.15s; }
   .btn-sec:hover { border-color: var(--text); color: var(--text); }
-  .btn-pri { padding: 9px 20px; background: var(--accent); border: none; border-radius: 8px; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; color: #fff; transition: background 0.15s; }
+  .btn-pri { padding: 9px 20px; background: var(--accent); border: none; border-radius: 8px; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; color: #fff; }
   .btn-pri:hover { background: #c0285a; }
+  .btn-warn { padding: 9px 20px; background: var(--no); border: none; border-radius: 8px; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; color: #fff; }
   .uchk-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
   .uchk-row label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
 
+  /* ── EDIT BANNER ── */
+  .edit-banner { display: none; background: var(--accent2); color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 6px 40px; }
+  body.editing-mode .edit-banner { display: block; }
+  body.editing-mode tr.race-row:hover { background: #fffbf5; }
+
+  /* ── SAVE BAR ── */
   .save-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; z-index: 100; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); }
-  .save-info { font-size: 12px; color: var(--text-muted); }
+  .save-info { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
   .saved-msg { font-size: 12px; color: var(--yes); opacity: 0; transition: opacity 0.3s; font-weight: 500; }
   .saved-msg.show { opacity: 1; }
-
   .table-view.hidden { display: none; }
   .summary-grid { display: none; }
   .summary-grid.active { display: block; }
 
   @media (max-width: 768px) {
-    header, .user-bar, .toolbar { padding-left: 16px; padding-right: 16px; }
+    header, .user-bar, .toolbar, .editor-panel { padding-left: 16px; padding-right: 16px; }
     .container { padding: 0 10px; }
     .organizer { display: none; }
     header::after { display: none; }
+    .ef-group.wide input { width: 180px; }
   }
 </style>
 </head>
 <body>
 
+<!-- ═══ SETUP SCREEN ═══ -->
+<div id="setup-screen">
+  <div class="setup-card">
+    <h2>Calendario Triveneto<br><span>Donne 2026</span></h2>
+    <p>Inserisci le tue credenziali JSONBin per attivare la sincronizzazione online. Trovi queste info nel file <code>config.txt</code> che hai ricevuto, oppure seguendo la guida di setup.</p>
+    <div class="setup-field">
+      <label>JSONBin API Key (X-Master-Key)</label>
+      <input type="password" id="setup-apikey" placeholder="$2b$10$...">
+      <small>La trovi su jsonbin.io → Account → API Keys → Secret Key</small>
+    </div>
+    <div class="setup-field">
+      <label>Bin ID</label>
+      <input type="text" id="setup-binid" placeholder="6xxxxxxxxxxxxxxxxxxxxxxx">
+      <small>La stringa dopo /b/ nell'URL del tuo bin</small>
+    </div>
+    <div class="setup-field">
+      <label>Il tuo nome (come tecnico)</label>
+      <input type="text" id="setup-name" placeholder="es. Marco">
+    </div>
+    <button class="setup-btn" onclick="setupConnect()">Connetti e Apri →</button>
+    <div class="setup-err" id="setup-err"></div>
+    <p style="margin-top:16px; margin-bottom:0; font-size:11px;">
+      🔒 <strong>Admin?</strong> <a href="#" onclick="openAdminSetup();return false;" style="color:var(--accent)">Clicca qui per configurare come admin</a>
+    </p>
+  </div>
+</div>
+
+<!-- ═══ ADMIN SETUP OVERLAY ═══ -->
+<div class="modal-overlay" id="admin-setup-modal">
+  <div class="modal">
+    <h3>🔐 Configurazione Admin</h3>
+    <p>Come admin puoi modificare le gare. Inserisci la password admin per abilitare questa funzione.</p>
+    <div class="mfield">
+      <label>JSONBin API Key</label>
+      <input type="password" id="as-apikey" placeholder="$2b$10$...">
+    </div>
+    <div class="mfield">
+      <label>Bin ID</label>
+      <input type="text" id="as-binid" placeholder="6xxxxxxxxxxxxxxxxxxxxxxx">
+    </div>
+    <div class="mfield">
+      <label>Password Admin</label>
+      <input type="password" id="as-password" placeholder="Password che hai scelto">
+    </div>
+    <div class="mfield">
+      <label>Il tuo nome</label>
+      <input type="text" id="as-name" placeholder="es. Admin">
+    </div>
+    <div class="setup-err" id="as-err" style="margin-bottom:10px;"></div>
+    <div class="modal-actions">
+      <button class="btn-sec" onclick="closeModal('admin-setup-modal')">Annulla</button>
+      <button class="btn-pri" onclick="adminConnect()">Connetti come Admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="main-app" style="display:none">
+
 <header>
-  <div class="header-label">Veneto · Friuli V.G. · Trento · Bolzano</div>
-  <h1>Calendario Triveneto<br><span>Donne 2026</span></h1>
-  <div class="header-sub">Esordienti · Allieve</div>
+  <div class="header-top">
+    <div>
+      <div class="header-label">Veneto · Friuli V.G. · Trento · Bolzano</div>
+      <h1>Calendario Triveneto<br><span>Donne 2026</span></h1>
+      <div class="header-sub">Allieve</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;margin-top:4px">
+      <div id="sync-pill" class="sync-pill offline"><span class="sync-dot"></span> <span id="sync-text">Connessione...</span></div>
+      <button onclick="forceSync()" style="font-size:11px;color:var(--text-muted);background:none;border:none;cursor:pointer;text-decoration:underline">↺ Aggiorna</button>
+    </div>
+  </div>
   <div class="stats-bar">
     <div class="stat"><span class="stat-value yes" id="yes-count">0</span><span class="stat-label">Disponibile</span></div>
     <div class="stat"><span class="stat-value no"  id="no-count">0</span><span class="stat-label">Non Disponibile</span></div>
     <div class="stat"><span class="stat-value pend" id="pending-count">0</span><span class="stat-label">Da Confermare</span></div>
-    <div class="stat"><span class="stat-value" id="total-count">35</span><span class="stat-label">Gare Totali</span></div>
+    <div class="stat"><span class="stat-value" id="total-count">0</span><span class="stat-label">Gare Totali</span></div>
   </div>
 </header>
 
 <div class="user-bar">
   <span class="user-bar-label">Tecnico:</span>
   <div class="user-chips" id="user-chips"></div>
-  <button class="add-user-btn" onclick="promptAddUser()">+ Aggiungi Tecnico</button>
+  <button class="add-user-btn" id="add-tecnico-btn" onclick="promptAddUser()" style="display:none">+ Aggiungi Tecnico</button>
 </div>
 
 <div class="toolbar">
   <button class="tb-btn" onclick="openShareModal()">
     <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-    Condividi Link
+    Condividi
   </button>
   <button class="tb-btn" onclick="openEmailModal()">
     <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
     Invia Email
   </button>
-  <button class="tb-btn" onclick="openSetup()">
-    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-    Setup Sync
-  </button>
   <div class="tb-sep"></div>
   <button class="tb-btn" onclick="exportExcel()">
-    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-    Esporta Excel
+    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    Excel
   </button>
   <button class="tb-btn" onclick="exportCSV()">
-    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
-    Esporta CSV
+    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+    CSV
   </button>
   <div class="tb-sep"></div>
+  <button class="tb-btn edit-mode-btn" id="edit-toggle-btn" onclick="toggleEditMode()" style="display:none">
+    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    <span id="edit-toggle-label">Modifica Calendario</span>
+  </button>
+  <div class="tb-sep" id="edit-sep" style="display:none"></div>
   <div class="view-toggle">
     <button class="vt-btn active" id="vt-table" onclick="setView('table')">Lista</button>
     <button class="vt-btn" id="vt-summary" onclick="setView('summary')">Riepilogo</button>
   </div>
+</div>
+
+<div class="edit-banner">✏️ Modalità modifica attiva &nbsp;·&nbsp; <a href="#" onclick="toggleEditMode();return false;" style="color:#fff;text-decoration:underline">Esci</a></div>
+
+<div class="editor-panel" id="editor-panel">
+  <div class="editor-panel-title">
+    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+    <span id="editor-panel-title-text">Aggiungi Gara</span>
+  </div>
+  <div class="editor-form">
+    <div class="ef-group sm"><label>Giorno</label><input type="number" id="ef-day" min="1" max="31" placeholder="15"></div>
+    <div class="ef-group sm"><label>Mese</label>
+      <select id="ef-month">
+        <option>Marzo</option><option>Aprile</option><option>Maggio</option><option>Giugno</option>
+        <option>Luglio</option><option>Agosto</option><option>Settembre</option><option>Ottobre</option>
+      </select>
+    </div>
+    <div class="ef-group med"><label>Categoria</label><input type="text" id="ef-cat" placeholder="D/ALL-ESORD" value="D/ALL-ESORD"></div>
+    <div class="ef-group wide"><label>Località</label><input type="text" id="ef-loc" placeholder="es. Verona (VR)"></div>
+    <div class="ef-group wide"><label>Denominazione</label><input type="text" id="ef-den" placeholder="es. 1° Trofeo..."></div>
+    <div class="ef-group med"><label>Organizzatrice</label><input type="text" id="ef-org" placeholder="es. U.C. ..."></div>
+    <div class="ef-group med"><label>Nota speciale</label><input type="text" id="ef-special" placeholder="CRONO (opz.)"></div>
+    <input type="hidden" id="ef-editing-idx" value="">
+    <div class="ef-actions">
+      <button class="ef-btn save" onclick="saveRace()">✓ Salva</button>
+      <button class="ef-btn cancel" onclick="cancelEdit()">Annulla</button>
+    </div>
+  </div>
+  <div class="editor-hint">💡 Le modifiche vengono sincronizzate online per tutti gli utenti.</div>
 </div>
 
 <div class="container">
@@ -178,41 +337,33 @@
   <div class="summary-grid" id="summary-view"></div>
 </div>
 
-<!-- SHARE MODAL -->
+</div><!-- end #main-app -->
+
+<!-- MODALS -->
 <div class="modal-overlay" id="share-modal">
   <div class="modal">
     <h3>🔗 Condividi il Calendario</h3>
-    <p>Chiunque abbia questo file HTML può aprirlo nel proprio browser e inserire le proprie disponibilità — ogni persona usa il proprio computer e i dati vengono salvati localmente. Per condividere le disponibilità compilate usa <strong>Invia Email</strong> o <strong>Esporta Excel</strong>.</p>
-    <div class="mfield">
-      <label>URL pagina corrente</label>
+    <p>Invia questo link ai tuoi tecnici. Quando aprono la pagina, inseriscono la loro API Key e Bin ID (gli stessi tuoi) e il loro nome — vedranno il calendario sincronizzato.</p>
+    <div class="mfield"><label>URL pagina</label>
       <div class="copy-row">
         <input type="text" id="share-url" readonly>
         <button class="copy-btn" onclick="copyShareUrl()">Copia</button>
       </div>
     </div>
-    <div class="modal-actions">
-      <button class="btn-sec" onclick="closeModal('share-modal')">Chiudi</button>
+    <div class="mfield"><label>Dati di connessione da condividere</label>
+      <textarea id="share-config" readonly style="min-height:80px;font-size:12px;"></textarea>
     </div>
+    <div class="modal-actions"><button class="btn-sec" onclick="closeModal('share-modal')">Chiudi</button></div>
   </div>
 </div>
 
-<!-- EMAIL MODAL -->
 <div class="modal-overlay" id="email-modal">
   <div class="modal">
     <h3>✉️ Invia Disponibilità</h3>
-    <p>Genera un'email con il riepilogo delle disponibilità da inviare all'allenatore o alla società.</p>
-    <div class="mfield">
-      <label>Destinatario</label>
-      <input type="email" id="email-to" placeholder="allenatore@squadra.it">
-    </div>
-    <div class="mfield">
-      <label>Includi tecnici</label>
-      <div class="uchk-row" id="email-user-checks"></div>
-    </div>
-    <div class="mfield">
-      <label>Anteprima testo</label>
-      <textarea id="email-preview" readonly></textarea>
-    </div>
+    <p>Genera un'email con il riepilogo delle disponibilità dei tecnici.</p>
+    <div class="mfield"><label>Destinatario</label><input type="email" id="email-to" placeholder="responsabile@squadra.it"></div>
+    <div class="mfield"><label>Includi tecnici</label><div class="uchk-row" id="email-user-checks"></div></div>
+    <div class="mfield"><label>Anteprima testo</label><textarea id="email-preview" readonly></textarea></div>
     <div class="modal-actions">
       <button class="btn-sec" onclick="closeModal('email-modal')">Annulla</button>
       <button class="btn-pri" onclick="sendEmail()">📧 Apri in Mail</button>
@@ -220,114 +371,57 @@
   </div>
 </div>
 
-<!-- SETUP JSONBIN MODAL -->
-<div class="modal-overlay" id="setup-modal">
-  <div class="modal" style="max-width:600px">
-
-    <!-- TAB SWITCHER -->
-    <div style="display:flex;gap:0;margin-bottom:22px;border:1.5px solid var(--border);border-radius:8px;overflow:hidden">
-      <button id="tab-tecnico" onclick="switchSetupTab('tecnico')"
-        style="flex:1;padding:10px;border:none;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:var(--accent);color:#fff;transition:all 0.15s">
-        👤 Sono un Tecnico
-      </button>
-      <button id="tab-admin" onclick="switchSetupTab('admin')"
-        style="flex:1;padding:10px;border:none;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:var(--surface2);color:var(--text-muted);transition:all 0.15s">
-        🔧 Sono l'Admin
-      </button>
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <h3>🗑️ Elimina Gara</h3>
+    <p id="delete-modal-text"></p>
+    <div class="modal-actions">
+      <button class="btn-sec" onclick="closeModal('delete-modal')">Annulla</button>
+      <button class="btn-warn" onclick="confirmDelete()">Elimina</button>
     </div>
+  </div>
+</div>
 
-    <!-- TAB: TECNICO -->
-    <div id="panel-tecnico">
-      <h3 style="margin-bottom:6px">🔑 Inserisci la Password</h3>
-      <p>Inserisci la password che ti ha fornito l'amministratore per accedere al calendario condiviso.</p>
-      <div class="mfield">
-        <label>Password calendario</label>
-        <input type="password" id="tecnico-password" placeholder="••••••••••••••••"
-          style="font-family:monospace;font-size:14px;letter-spacing:2px">
-      </div>
-      <div class="mfield">
-        <label>Bin ID <span style="font-weight:400;text-transform:none;letter-spacing:0">(fornito dall'admin)</span></label>
-        <input type="text" id="tecnico-binid" placeholder="67a3f2c4acd3..." style="font-family:monospace;font-size:12px">
-      </div>
-      <p id="tecnico-status" style="font-size:13px;color:var(--accent);min-height:18px;margin-bottom:14px"></p>
-      <div class="modal-actions">
-        <button class="btn-sec" onclick="resetSetup()" style="margin-right:auto;font-size:11px;color:var(--no);border-color:rgba(220,38,38,0.3)">Reset</button>
-        <button class="btn-sec" onclick="closeModal('setup-modal')">Annulla</button>
-        <button class="btn-pri" onclick="submitTecnico()">🔓 Connetti</button>
+<div class="modal-overlay" id="race-modal">
+  <div class="modal">
+    <h3>✏️ Modifica Gara</h3>
+    <div class="mfield-row">
+      <div class="mfield"><label>Giorno</label><input type="number" id="rm-day" min="1" max="31"></div>
+      <div class="mfield"><label>Mese</label>
+        <select id="rm-month">
+          <option>Marzo</option><option>Aprile</option><option>Maggio</option><option>Giugno</option>
+          <option>Luglio</option><option>Agosto</option><option>Settembre</option><option>Ottobre</option>
+        </select>
       </div>
     </div>
-
-    <!-- TAB: ADMIN -->
-    <div id="panel-admin" style="display:none">
-      <h3 style="margin-bottom:6px">🔧 Setup Amministratore</h3>
-      <p>Crea il database condiviso e genera la password per i tecnici. Fai questo <strong>una volta sola</strong>.</p>
-
-      <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:13px 15px;margin-bottom:16px;font-size:12.5px;line-height:1.8">
-        <strong>📋 Come funziona:</strong><br>
-        1. Vai su <a href="https://jsonbin.io" target="_blank" style="color:var(--accent)">jsonbin.io</a> → crea account gratuito<br>
-        2. Vai in <strong>API Keys</strong> → crea una <strong>Master Key</strong><br>
-        3. Incollala qui sotto → clicca <strong>Crea Database</strong><br>
-        4. Riceverai un <strong>Bin ID</strong> e una <strong>Password</strong> da condividere con i tecnici<br>
-        5. La tua Master Key <em>non viene mai salvata</em> nel file
-      </div>
-
-      <div class="mfield">
-        <label>Master Key <span style="font-weight:400;text-transform:none;letter-spacing:0">(da jsonbin.io → API Keys, usata solo ora)</span></label>
-        <input type="text" id="admin-masterkey" placeholder="$2a$10$..." style="font-family:monospace;font-size:12px">
-      </div>
-
-      <div id="admin-result-box" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-bottom:14px;font-size:13px;line-height:2">
-        ✅ <strong>Database creato con successo!</strong><br>
-        Condividi questi due dati con i tuoi tecnici:<br><br>
-        <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:center">
-          <span style="font-weight:700;color:var(--text-muted);font-size:11px;letter-spacing:1px;text-transform:uppercase">BIN ID</span>
-          <code id="result-binid" style="background:#e8f5e9;padding:4px 10px;border-radius:4px;user-select:all;font-size:12px;cursor:pointer" onclick="navigator.clipboard.writeText(this.textContent)" title="Clicca per copiare"></code>
-          <span style="font-weight:700;color:var(--text-muted);font-size:11px;letter-spacing:1px;text-transform:uppercase">PASSWORD</span>
-          <code id="result-accesskey" style="background:#e8f5e9;padding:4px 10px;border-radius:4px;user-select:all;font-size:12px;cursor:pointer;word-break:break-all" onclick="navigator.clipboard.writeText(this.textContent)" title="Clicca per copiare"></code>
-        </div>
-        <div style="margin-top:10px;font-size:11px;color:var(--text-muted)">📋 Clicca su Bin ID o Password per copiarli. Salvali in un posto sicuro!</div>
-      </div>
-
-      <p id="admin-status" style="font-size:13px;color:var(--accent);min-height:18px;margin-bottom:14px"></p>
-      <div class="modal-actions">
-        <button class="btn-sec" onclick="closeModal('setup-modal')">Chiudi</button>
-        <button class="btn-pri" onclick="submitAdmin()">⚡ Crea Database</button>
-      </div>
+    <div class="mfield"><label>Categoria</label><input type="text" id="rm-cat"></div>
+    <div class="mfield"><label>Località</label><input type="text" id="rm-loc"></div>
+    <div class="mfield"><label>Denominazione</label><input type="text" id="rm-den"></div>
+    <div class="mfield"><label>Organizzatrice</label><input type="text" id="rm-org"></div>
+    <div class="mfield"><label>Nota speciale (opzionale)</label><input type="text" id="rm-special" placeholder="es. CRONO, CAMPIONATO ITALIANO…"></div>
+    <input type="hidden" id="rm-idx">
+    <div class="modal-actions">
+      <button class="btn-sec" onclick="closeModal('race-modal')">Annulla</button>
+      <button class="btn-pri" onclick="saveRaceModal()">Salva Modifiche</button>
     </div>
-
   </div>
 </div>
 
 <div class="save-bar">
-  <span class="save-info" style="display:flex;align-items:center;gap:10px">
-    <span style="display:flex;align-items:center;gap:6px">
-      <span id="sync-dot" style="width:8px;height:8px;border-radius:50%;background:var(--text-muted);display:inline-block;flex-shrink:0"></span>
-      <span id="sync-status" style="font-size:12px;color:var(--text-muted)">Offline</span>
-    </span>
-    <span style="color:var(--border)">·</span>
-    <span id="last-saved" style="font-size:12px;color:var(--text-muted)"></span>
-    <span style="color:var(--border)">·</span>
-    <button onclick="openSetup()" style="background:none;border:none;font-size:12px;color:var(--text-muted);cursor:pointer;padding:0;text-decoration:underline">⚙️ Setup</button>
-    <button onclick="syncFromServer()" style="background:none;border:none;font-size:12px;color:var(--text-muted);cursor:pointer;padding:0;text-decoration:underline">↻ Aggiorna</button>
+  <span class="save-info">
+    <span id="sync-status-text">—</span>
   </span>
   <span class="saved-msg" id="saved-msg">✓ Sincronizzato</span>
 </div>
 
-
 <script>
-// ╔══════════════════════════════════════════════════════════════════╗
-// ║  CONFIGURAZIONE JSONBIN — da compilare una volta sola           ║
-// ║  Segui le istruzioni nel modal di setup al primo avvio          ║
-// ╚══════════════════════════════════════════════════════════════════╝
-const CFG_KEY = 'cal_triv_jsonbin_cfg';
+// ═══════════════════════════════════════════════════════════════════
+// CONFIG — popolati dopo il setup
+// ═══════════════════════════════════════════════════════════════════
+let CFG = { apiKey: '', binId: '', userName: '', isAdmin: false, adminPass: '' };
+const ADMIN_PASS_HASH = 'triv2026admin'; // ← CAMBIA QUESTA PASSWORD prima di distribuire
 
-function getCfg() {
-  try { return JSON.parse(localStorage.getItem(CFG_KEY)||'null'); } catch { return null; }
-}
-function saveCfg(c) { localStorage.setItem(CFG_KEY, JSON.stringify(c)); }
-
-// ─── DATI GARE ────────────────────────────────────────────────────────────────
-const races = [
+const DEFAULT_RACES = [
   {month:"Marzo",    day:22, cat:"D/ALL-ESORD",   loc:"Vò Vecchio (PD)",              den:'15° Trofeo Vini "Terre Gaie" - 19^ M.O. G.Sella',       org:"Scuola Ciclismo Vò"},
   {month:"Aprile",   day:12, cat:"D/ALL-ESORD",   loc:"Resana (TV)",                  den:'G.P. "Resana"',                                          org:"U.C. Godigese Abra Iride"},
   {month:"Aprile",   day:19, cat:"D/ALL-ESORD",   loc:"Pianezze (VI)",                den:"Pianezze Girl's Road Classic",                            org:"VC Città di Marostica"},
@@ -364,264 +458,331 @@ const races = [
   {month:"Settembre",day:26, cat:"D-ALLIEVE",     loc:"Palù di Giovo (TN)",           den:"CRONO Festa dell'Uva",                                 org:"US Montecorona",         special:"CRONO"},
   {month:"Settembre",day:27, cat:"D/ALL-ESORD",   loc:"Bolzano (BZ)",                 den:"4^ Coppa Amelia, Vittorio e Primo Bianchi – A. Zanon", org:"Ciclistica Adriana Bolzano"},
 ];
-const months = [...new Set(races.map(r => r.month))];
 
-// ─── STATO LOCALE ─────────────────────────────────────────────────────────────
-const UKEY = 'cal_triv_2026_users';
-let remoteData = {};        // dati dal server (unica fonte di verità)
+const MONTH_ORDER = ["Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre"];
+
+// ═══════════════════════════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════════════════════════
+let remoteData = { races: [], availability: {}, users: [] };
+let races = [];
 let users = [];
 let activeUser = '';
 let currentView = 'table';
-let syncInterval = null;
-let isSaving = false;
+let editMode = false;
+let pendingDeleteIdx = null;
+let syncTimeout = null;
+let isSyncing = false;
 
-// ─── JSONBIN API ──────────────────────────────────────────────────────────────
-// cfg = { binId, accessKey }  — l'accessKey è la "password" condivisa tra tecnici
-// La masterKey viene usata SOLO dall'admin durante il setup, mai salvata in cfg
-
-async function jbRead() {
-  const cfg = getCfg();
-  if (!cfg) return null;
-  try {
-    const r = await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}/latest`, {
-      headers: { 'X-Access-Key': cfg.accessKey }
-    });
-    if (!r.ok) return null;
-    const j = await r.json();
-    return j.record || {};
-  } catch { return null; }
+// ═══════════════════════════════════════════════════════════════════
+// SETUP
+// ═══════════════════════════════════════════════════════════════════
+function openAdminSetup() {
+  document.getElementById('admin-setup-modal').classList.add('open');
 }
 
-async function jbWrite(data) {
-  const cfg = getCfg();
-  if (!cfg) return false;
-  try {
-    const r = await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'X-Access-Key': cfg.accessKey },
-      body: JSON.stringify(data)
-    });
-    return r.ok;
-  } catch { return false; }
+async function setupConnect() {
+  const apiKey = document.getElementById('setup-apikey').value.trim();
+  const binId  = document.getElementById('setup-binid').value.trim();
+  const name   = document.getElementById('setup-name').value.trim();
+  const err    = document.getElementById('setup-err');
+  err.classList.remove('show');
+  if (!apiKey || !binId || !name) { err.textContent='Compila tutti i campi.'; err.classList.add('show'); return; }
+  CFG = { apiKey, binId, userName: name, isAdmin: false };
+  const ok = await fetchRemote();
+  if (!ok) { err.textContent='Connessione fallita. Controlla API Key e Bin ID.'; err.classList.add('show'); return; }
+  localStorage.setItem('cal_cfg', JSON.stringify({apiKey, binId, userName: name, isAdmin: false}));
+  launchApp();
 }
 
-// Admin only: crea il bin con la Master Key
-async function jbAdminCreateBin(masterKey) {
-  try {
-    const r = await fetch('https://api.jsonbin.io/v3/b', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': masterKey,
-        'X-Bin-Name': 'Calendario Triveneto 2026',
-        'X-Bin-Private': 'true'
-      },
-      body: JSON.stringify({ tecnici: [], disponibilita: {} })
-    });
-    if (!r.ok) return null;
-    const j = await r.json();
-    return j.metadata?.id || null;
-  } catch { return null; }
+async function adminConnect() {
+  const apiKey   = document.getElementById('as-apikey').value.trim();
+  const binId    = document.getElementById('as-binid').value.trim();
+  const password = document.getElementById('as-password').value.trim();
+  const name     = document.getElementById('as-name').value.trim();
+  const err      = document.getElementById('as-err');
+  err.classList.remove('show');
+  if (!apiKey || !binId || !password || !name) { err.textContent='Compila tutti i campi.'; err.classList.add('show'); return; }
+  if (password !== ADMIN_PASS_HASH) { err.textContent='Password admin errata.'; err.classList.add('show'); return; }
+  CFG = { apiKey, binId, userName: name, isAdmin: true };
+  const ok = await fetchRemote();
+  if (!ok) { err.textContent='Connessione fallita. Controlla API Key e Bin ID.'; err.classList.add('show'); return; }
+  localStorage.setItem('cal_cfg', JSON.stringify({apiKey, binId, userName: name, isAdmin: true}));
+  closeModal('admin-setup-modal');
+  launchApp();
 }
 
-// Admin only: crea una Access Key limitata a quel bin (lettura + scrittura)
-async function jbAdminCreateAccessKey(masterKey, binId) {
-  try {
-    const r = await fetch('https://api.jsonbin.io/v3/a', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Master-Key': masterKey },
-      body: JSON.stringify({
-        name: 'Tecnici Calendario 2026',
-        permissions: [
-          { collection: 'bins', resource: binId, actions: ['READ', 'UPDATE'] }
-        ]
-      })
-    });
-    if (!r.ok) return null;
-    const j = await r.json();
-    // JSONBin returns the key string directly in different fields depending on plan
-    return j.key || j.accessKey || j.record?.key || null;
-  } catch { return null; }
-}
-
-// ─── SYNC ────────────────────────────────────────────────────────────────────
-function setSyncStatus(status) {
-  // status: 'ok' | 'saving' | 'error' | 'offline'
-  const el = document.getElementById('sync-status');
-  const dot = document.getElementById('sync-dot');
-  const map = {
-    ok:      { text:'Sincronizzato',  color:'var(--yes)',       blink:false },
-    saving:  { text:'Salvataggio…',   color:'var(--accent2)',   blink:true  },
-    error:   { text:'Errore sync',    color:'var(--no)',        blink:false },
-    offline: { text:'Offline',        color:'var(--text-muted)',blink:false },
-    loading: { text:'Caricamento…',   color:'var(--accent2)',   blink:true  },
-  };
-  const s = map[status] || map.offline;
-  el.textContent = s.text;
-  dot.style.background = s.color;
-  dot.style.animation = s.blink ? 'blink 1s infinite' : 'none';
-}
-
-async function syncFromServer(silent=false) {
-  if (!getCfg()) return;
-  if (!silent) setSyncStatus('loading');
-  const data = await jbRead();
-  if (data === null) { setSyncStatus('error'); return; }
-
-  // Aggiorna utenti se ci sono nuovi dal server
-  const serverUsers = data.tecnici || [];
-  serverUsers.forEach(u => { if (!users.includes(u)) users.push(u); });
-  if (serverUsers.length > 0 && users.length === 0) users = [...serverUsers];
-  if (users.length === 0) users = ['Tecnico'];
-  saveUsersLocal();
-
-  remoteData = data.disponibilita || {};
+function launchApp() {
+  document.getElementById('setup-screen').classList.add('hidden');
+  document.getElementById('main-app').style.display = 'block';
+  // Show admin controls
+  if (CFG.isAdmin) {
+    document.getElementById('edit-toggle-btn').style.display = 'inline-flex';
+    document.getElementById('edit-sep').style.display = 'block';
+    document.getElementById('add-tecnico-btn').style.display = 'block';
+  }
+  applyRemoteData();
+  // Auto-select current user chip
+  if (!users.includes(CFG.userName)) {
+    users.push(CFG.userName);
+    remoteData.users = users;
+    pushRemote();
+  }
+  activeUser = CFG.userName;
   renderUserChips();
   renderCalendar();
   updateStats();
-  setSyncStatus('ok');
-  document.getElementById('last-saved').textContent =
-    'Aggiornato: ' + new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  setSyncStatus('online');
+  // Poll every 30s
+  setInterval(forceSync, 30000);
 }
 
-async function pushToServer() {
-  if (!getCfg() || isSaving) return;
-  isSaving = true;
-  setSyncStatus('saving');
-  const payload = { tecnici: users, disponibilita: remoteData };
-  const ok = await jbWrite(payload);
-  isSaving = false;
-  setSyncStatus(ok ? 'ok' : 'error');
-  if (ok) document.getElementById('last-saved').textContent =
-    'Salvato: ' + new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+// ═══════════════════════════════════════════════════════════════════
+// JSONBIN API
+// ═══════════════════════════════════════════════════════════════════
+const BIN_URL = () => `https://api.jsonbin.io/v3/b/${CFG.binId}`;
+const HEADERS = () => ({ 'Content-Type': 'application/json', 'X-Master-Key': CFG.apiKey, 'X-Bin-Versioning': 'false' });
+
+async function fetchRemote() {
+  setSyncStatus('syncing');
+  try {
+    const res = await fetch(BIN_URL() + '/latest', { headers: HEADERS() });
+    if (!res.ok) throw new Error(res.status);
+    const json = await res.json();
+    const rec = json.record;
+    // First time: initialize with defaults
+    if (!rec.races || rec.races.length === 0) {
+      remoteData = { races: JSON.parse(JSON.stringify(DEFAULT_RACES)), availability: {}, users: [] };
+      await pushRemote();
+    } else {
+      remoteData = rec;
+    }
+    setSyncStatus('online');
+    return true;
+  } catch(e) {
+    setSyncStatus('offline');
+    return false;
+  }
 }
 
-function startPolling() {
-  if (syncInterval) clearInterval(syncInterval);
-  syncInterval = setInterval(() => syncFromServer(true), 30000); // ogni 30s
+async function pushRemote() {
+  setSyncStatus('syncing');
+  try {
+    await fetch(BIN_URL(), { method: 'PUT', headers: HEADERS(), body: JSON.stringify(remoteData) });
+    setSyncStatus('online');
+    flash();
+  } catch(e) {
+    setSyncStatus('offline');
+  }
 }
 
-// ─── USERS ────────────────────────────────────────────────────────────────────
-function saveUsersLocal() { localStorage.setItem(UKEY, JSON.stringify(users)); }
-function loadUsersLocal() {
-  try { const u=JSON.parse(localStorage.getItem(UKEY)); if(u&&u.length) return u; } catch {}
-  return ['Tecnico'];
+function schedulePush() {
+  clearTimeout(syncTimeout);
+  syncTimeout = setTimeout(pushRemote, 800);
 }
 
+async function forceSync() {
+  await fetchRemote();
+  applyRemoteData();
+  renderCalendar();
+  updateStats();
+}
+
+function applyRemoteData() {
+  races = remoteData.races || JSON.parse(JSON.stringify(DEFAULT_RACES));
+  users = remoteData.users || [];
+  if (!users.includes(CFG.userName)) users.push(CFG.userName);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SYNC STATUS UI
+// ═══════════════════════════════════════════════════════════════════
+function setSyncStatus(state) {
+  const pill = document.getElementById('sync-pill');
+  const txt  = document.getElementById('sync-text');
+  const dot  = pill.querySelector('.sync-dot');
+  const info = document.getElementById('sync-status-text');
+  pill.className = 'sync-pill ' + state;
+  dot.className  = 'sync-dot' + (state==='syncing' ? ' pulse' : '');
+  if (state==='online')  { txt.textContent='Sincronizzato'; info.textContent='✓ Dati online · Aggiornato alle ' + new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}); }
+  if (state==='offline') { txt.textContent='Offline'; info.textContent='⚠ Offline — le modifiche saranno perse'; }
+  if (state==='syncing') { txt.textContent='Sincronizzazione...'; }
+}
+function flash() { const m=document.getElementById('saved-msg'); m.classList.add('show'); setTimeout(()=>m.classList.remove('show'),1400); }
+
+// ═══════════════════════════════════════════════════════════════════
+// TECNICO CHIPS
+// ═══════════════════════════════════════════════════════════════════
 function renderUserChips() {
-  const c = document.getElementById('user-chips'); c.innerHTML = '';
+  const c=document.getElementById('user-chips'); c.innerHTML='';
   users.forEach(u => {
-    const b = document.createElement('button');
-    b.className = 'user-chip' + (u===activeUser?' active':'');
-    b.textContent = u;
-    b.onclick = () => { activeUser=u; renderUserChips(); updateStats(); };
+    const b=document.createElement('button');
+    b.className='user-chip'+(u===activeUser?' active':'');
+    b.textContent=u;
+    b.onclick=()=>{ activeUser=u; renderUserChips(); updateStats(); };
     c.appendChild(b);
   });
 }
-
-async function promptAddUser() {
-  const n = (prompt('Nome tecnico:')||'').trim();
-  if (!n) return;
-  if (users.includes(n)) { alert('Tecnico già presente.'); return; }
-  users.push(n); saveUsersLocal(); activeUser = n;
-  renderUserChips(); renderCalendar(); updateStats();
-  await pushToServer();
+function promptAddUser() {
+  const n=(prompt('Nome tecnico:')||'').trim();
+  if(!n) return;
+  if(users.includes(n)){alert('Tecnico già presente.');return;}
+  users.push(n); remoteData.users=users; schedulePush();
+  activeUser=n; renderUserChips(); renderCalendar(); updateStats();
 }
 
-// ─── STATS ────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════════════════════════
 function updateStats() {
-  const ud = remoteData[activeUser]||{};
+  const ud=(remoteData.availability||{})[activeUser]||{};
   let yes=0,no=0,pend=0;
-  races.forEach((_,i) => { const v=ud[i]||''; if(v==='yes')yes++; else if(v==='no')no++; else pend++; });
+  races.forEach((_,i)=>{ const v=ud[i]||''; if(v==='yes')yes++; else if(v==='no')no++; else pend++; });
   document.getElementById('yes-count').textContent=yes;
   document.getElementById('no-count').textContent=no;
   document.getElementById('pending-count').textContent=pend;
+  document.getElementById('total-count').textContent=races.length;
 }
 
-// ─── RENDER ───────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+// EDIT MODE
+// ═══════════════════════════════════════════════════════════════════
+function toggleEditMode() {
+  editMode=!editMode;
+  document.body.classList.toggle('editing-mode',editMode);
+  const lbl=document.getElementById('edit-toggle-label');
+  const btn=document.getElementById('edit-toggle-btn');
+  if(editMode){ lbl.textContent='✓ Esci da Modifica'; btn.style.background='#fff8ee'; document.getElementById('editor-panel').classList.add('open'); }
+  else { lbl.textContent='Modifica Calendario'; btn.style.background=''; document.getElementById('editor-panel').classList.remove('open'); clearEditorForm(); }
+}
+function clearEditorForm() {
+  ['ef-day','ef-loc','ef-den','ef-org','ef-special'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ef-cat').value='D/ALL-ESORD';
+  document.getElementById('ef-month').value='Marzo';
+  document.getElementById('ef-editing-idx').value='';
+  document.getElementById('editor-panel-title-text').textContent='Aggiungi Gara';
+}
+function cancelEdit() { clearEditorForm(); }
+
+const SORT = (a,b)=>{ const m=MONTH_ORDER.indexOf(a.month)-MONTH_ORDER.indexOf(b.month); return m!==0?m:a.day-b.day; };
+
+function saveRace() {
+  const day=parseInt(document.getElementById('ef-day').value);
+  const month=document.getElementById('ef-month').value;
+  const cat=(document.getElementById('ef-cat').value||'').trim();
+  const loc=(document.getElementById('ef-loc').value||'').trim();
+  const den=(document.getElementById('ef-den').value||'').trim();
+  const org=(document.getElementById('ef-org').value||'').trim();
+  const special=(document.getElementById('ef-special').value||'').trim();
+  if(!day||!den){alert('Compila almeno Giorno e Denominazione.');return;}
+  const race={month,day,cat,loc,den,org}; if(special) race.special=special;
+  const eidx=document.getElementById('ef-editing-idx').value;
+  if(eidx!=='') races[parseInt(eidx)]=race; else races.push(race);
+  races.sort(SORT); remoteData.races=races; schedulePush();
+  clearEditorForm(); renderCalendar(); updateStats();
+}
+
+function openEditRace(idx) {
+  const r=races[idx];
+  document.getElementById('rm-day').value=r.day;
+  document.getElementById('rm-month').value=r.month;
+  document.getElementById('rm-cat').value=r.cat||'';
+  document.getElementById('rm-loc').value=r.loc||'';
+  document.getElementById('rm-den').value=r.den||'';
+  document.getElementById('rm-org').value=r.org||'';
+  document.getElementById('rm-special').value=r.special||'';
+  document.getElementById('rm-idx').value=idx;
+  document.getElementById('race-modal').classList.add('open');
+}
+function saveRaceModal() {
+  const idx=parseInt(document.getElementById('rm-idx').value);
+  const day=parseInt(document.getElementById('rm-day').value);
+  const month=document.getElementById('rm-month').value;
+  const cat=(document.getElementById('rm-cat').value||'').trim();
+  const loc=(document.getElementById('rm-loc').value||'').trim();
+  const den=(document.getElementById('rm-den').value||'').trim();
+  const org=(document.getElementById('rm-org').value||'').trim();
+  const special=(document.getElementById('rm-special').value||'').trim();
+  if(!day||!den){alert('Compila almeno Giorno e Denominazione.');return;}
+  const race={month,day,cat,loc,den,org}; if(special) race.special=special;
+  races[idx]=race; races.sort(SORT); remoteData.races=races; schedulePush();
+  closeModal('race-modal'); renderCalendar(); updateStats();
+}
+
+function openDeleteRace(idx) {
+  pendingDeleteIdx=idx;
+  document.getElementById('delete-modal-text').textContent=`Eliminare "${races[idx].den}" (${races[idx].month} ${races[idx].day})?`;
+  document.getElementById('delete-modal').classList.add('open');
+}
+function confirmDelete() {
+  if(pendingDeleteIdx===null) return;
+  races.splice(pendingDeleteIdx,1);
+  const av=remoteData.availability||{};
+  Object.keys(av).forEach(u=>{ const ud=av[u]; const nud={}; Object.keys(ud).forEach(k=>{ const ki=parseInt(k); if(ki<pendingDeleteIdx) nud[ki]=ud[k]; else if(ki>pendingDeleteIdx) nud[ki-1]=ud[k]; }); av[u]=nud; });
+  remoteData.races=races; remoteData.availability=av; schedulePush();
+  pendingDeleteIdx=null; closeModal('delete-modal'); renderCalendar(); updateStats();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════════
+function getMonths() { return [...new Set(races.map(r=>r.month))].sort((a,b)=>MONTH_ORDER.indexOf(a)-MONTH_ORDER.indexOf(b)); }
 function mapsUrl(loc) { return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc+', Italia')}`; }
+
 function renderCalendar() { renderTableView(); if(currentView==='summary') renderSummaryView(); }
 
 function renderTableView() {
-  const root = document.getElementById('table-view'); root.innerHTML='';
-  months.forEach(month => {
-    const mr = races.filter(r=>r.month===month);
-    const sec = document.createElement('div'); sec.className='month-section';
-    const uHeaders = users.map(u=>`<th><div class="avail-col-header"><span class="avail-col-name">${u}</span><span style="font-weight:400;font-size:10px;letter-spacing:1px">tecnico</span></div></th>`).join('');
-    sec.innerHTML=`
-      <div class="month-header">
-        <span class="month-title">${month}</span>
-        <div class="month-line"></div>
-        <span class="month-count">${mr.length} gare</span>
-      </div>
-      <table><thead><tr>
-        <th>Gg</th><th>Categoria</th><th>Località</th><th>Denominazione</th><th>Organizzatrice</th>
-        ${uHeaders}
-      </tr></thead><tbody id="tb-${month.replace(/\s/g,'')}"></tbody></table>`;
+  const root=document.getElementById('table-view'); root.innerHTML='';
+  const av=remoteData.availability||{};
+  getMonths().forEach(month=>{
+    const mr=races.filter(r=>r.month===month); if(!mr.length) return;
+    const sec=document.createElement('div'); sec.className='month-section';
+    const uH=users.map(u=>`<th><div class="avail-col-header"><span class="avail-col-name">${u}</span><span style="font-weight:400;font-size:10px">disp.</span></div></th>`).join('');
+    sec.innerHTML=`<div class="month-header"><span class="month-title">${month}</span><div class="month-line"></div><span class="month-count">${mr.length} gare</span></div>
+    <table><thead><tr><th>Gg</th><th>Cat.</th><th>Località</th><th>Denominazione</th><th>Organizzatrice</th>${uH}<th></th></tr></thead><tbody id="tb-${month.replace(/\s/g,'')}"></tbody></table>`;
     root.appendChild(sec);
-    const tbody = sec.querySelector(`#tb-${month.replace(/\s/g,'')}`);
-    mr.forEach(race => {
-      const idx = races.indexOf(race);
-      const isCampio = race.special&&race.special.includes('CAMPIONATO');
-      const locCell = race.loc
-        ? `<a class="locality-link" href="${mapsUrl(race.loc)}" target="_blank"><svg width="10" height="12" viewBox="0 0 12 14" fill="currentColor"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z"/></svg>${race.loc}</a>`
-        : '<span style="color:var(--text-muted)">—</span>';
-      const denCell = race.den + (race.special?`<span class="special">${race.special}</span>`:'');
-      const uCells = users.map(u => {
-        const v = (remoteData[u]||{})[idx]||'';
-        return `<td><select class="avail-select ${v?'pres-'+v:''}" data-idx="${idx}" data-user="${u}" onchange="handleChange(this)">
-          <option value="">—</option>
-          <option value="yes"${v==='yes'?' selected':''}>✓ Disponibile</option>
-          <option value="no"${v==='no'?' selected':''}>✗ Non disponibile</option>
-        </select></td>`;
-      }).join('');
-      const tr = document.createElement('tr'); tr.className='race-row';
-      tr.innerHTML=`<td class="td-date">${race.day}</td><td><span class="cat-badge${isCampio?' campio':''}">${race.cat}</span></td><td>${locCell}</td><td class="denomination">${denCell}</td><td class="organizer">${race.org}</td>${uCells}`;
+    const tbody=sec.querySelector(`#tb-${month.replace(/\s/g,'')}`);
+    mr.forEach(race=>{
+      const idx=races.indexOf(race);
+      const isCampio=race.special&&race.special.includes('CAMPIONATO');
+      const locCell=race.loc?`<a class="locality-link" href="${mapsUrl(race.loc)}" target="_blank"><svg width="10" height="12" viewBox="0 0 12 14" fill="currentColor"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z"/></svg>${race.loc}</a>`:'<span style="color:var(--text-muted)">—</span>';
+      const denCell=race.den+(race.special?`<span class="special">${race.special}</span>`:'');
+      const uCells=users.map(u=>{ const v=(av[u]||{})[idx]||''; return `<td><select class="avail-select ${v?'pres-'+v:''}" data-idx="${idx}" data-user="${u}" onchange="handleChange(this)"><option value="">—</option><option value="yes"${v==='yes'?' selected':''}>✓ Disponibile</option><option value="no"${v==='no'?' selected':''}>✗ Non disponibile</option></select></td>`; }).join('');
+      const tr=document.createElement('tr'); tr.className='race-row';
+      tr.innerHTML=`<td class="td-date">${race.day}</td><td><span class="cat-badge${isCampio?' campio':''}">${race.cat}</span></td><td>${locCell}</td><td class="denomination">${denCell}</td><td class="organizer">${race.org}</td>${uCells}<td><div class="row-actions"><button class="row-act-btn edit-btn" onclick="openEditRace(${idx})"><svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Modifica</button><button class="row-act-btn del-btn" onclick="openDeleteRace(${idx})"><svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>Elimina</button></div></td>`;
       tbody.appendChild(tr);
     });
   });
 }
 
 function renderSummaryView() {
-  const root = document.getElementById('summary-view'); root.innerHTML='';
-  const sec = document.createElement('div'); sec.className='month-section';
-  const uHeaders = users.map(u=>`<th>${u}</th>`).join('');
+  const root=document.getElementById('summary-view'); root.innerHTML='';
+  const av=remoteData.availability||{};
+  const sec=document.createElement('div'); sec.className='month-section';
+  const uH=users.map(u=>`<th>${u}</th>`).join('');
   let rows='';
   races.forEach((race,idx)=>{
-    const isCampio = race.special&&race.special.includes('CAMPIONATO');
-    const uCells = users.map(u=>{
-      const v=(remoteData[u]||{})[idx]||'';
-      if(v==='yes') return `<td><span class="sbadge yes">✓ Sì</span></td>`;
-      if(v==='no')  return `<td><span class="sbadge no">✗ No</span></td>`;
-      return `<td><span class="sbadge mt">—</span></td>`;
-    }).join('');
-    rows+=`<tr>
-      <td style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;white-space:nowrap">${race.month} ${race.day}</td>
-      <td><span class="cat-badge${isCampio?' campio':''}">${race.cat}</span></td>
-      <td style="font-size:12px;max-width:260px">${race.den}${race.special?`<span class="special">${race.special}</span>`:''}</td>
-      ${uCells}
-    </tr>`;
+    const isCampio=race.special&&race.special.includes('CAMPIONATO');
+    const uCells=users.map(u=>{ const v=(av[u]||{})[idx]||''; if(v==='yes') return`<td><span class="sbadge yes">✓ Sì</span></td>`; if(v==='no') return`<td><span class="sbadge no">✗ No</span></td>`; return`<td><span class="sbadge mt">—</span></td>`; }).join('');
+    rows+=`<tr><td style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;white-space:nowrap">${race.month} ${race.day}</td><td><span class="cat-badge${isCampio?' campio':''}">${race.cat}</span></td><td style="font-size:12px;max-width:260px">${race.den}${race.special?`<span class="special">${race.special}</span>`:''}</td>${uCells}</tr>`;
   });
-  sec.innerHTML=`
-    <div class="month-header" style="margin-top:24px">
-      <span class="month-title">Riepilogo Completo — Tutti i Tecnici</span>
-      <div class="month-line"></div>
-    </div>
-    <table class="summary-table"><thead><tr><th>Data</th><th>Cat.</th><th>Gara</th>${uHeaders}</tr></thead><tbody>${rows}</tbody></table>`;
+  sec.innerHTML=`<div class="month-header" style="margin-top:24px"><span class="month-title">Riepilogo — Tutte le Gare</span><div class="month-line"></div></div><table class="summary-table"><thead><tr><th>Data</th><th>Cat.</th><th>Gara</th>${uH}</tr></thead><tbody>${rows}</tbody></table>`;
   root.appendChild(sec);
 }
 
-async function handleChange(sel) {
-  const idx=parseInt(sel.dataset.idx), user=sel.dataset.user, val=sel.value;
+function handleChange(sel) {
+  const idx=parseInt(sel.dataset.idx),user=sel.dataset.user,val=sel.value;
   sel.className='avail-select'+(val?' pres-'+val:'');
-  if(!remoteData[user]) remoteData[user]={};
-  if(val) remoteData[user][idx]=val; else delete remoteData[user][idx];
-  updateStats();
+  if(!remoteData.availability) remoteData.availability={};
+  if(!remoteData.availability[user]) remoteData.availability[user]={};
+  if(val) remoteData.availability[user][idx]=val; else delete remoteData.availability[user][idx];
+  schedulePush(); updateStats();
   if(currentView==='summary') renderSummaryView();
-  await pushToServer();
 }
 
-// ─── VIEW TOGGLE ──────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+// VIEW TOGGLE
+// ═══════════════════════════════════════════════════════════════════
 function setView(v) {
   currentView=v;
   document.getElementById('table-view').classList.toggle('hidden',v!=='table');
@@ -631,167 +792,85 @@ function setView(v) {
   if(v==='summary') renderSummaryView();
 }
 
-// ─── MODALS ───────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════════════════════════════════
 function openShareModal() {
-  document.getElementById('share-url').value = window.location.href;
+  document.getElementById('share-url').value=window.location.href;
+  document.getElementById('share-config').value=`URL: ${window.location.href}\nBin ID: ${CFG.binId}\nAPI Key: ${CFG.apiKey}\n\nCondividi queste info con i tecnici.\nOgni tecnico apre la pagina, inserisce API Key, Bin ID e il proprio nome.`;
   document.getElementById('share-modal').classList.add('open');
 }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-function copyShareUrl() {
-  const inp=document.getElementById('share-url'); inp.select(); document.execCommand('copy');
-  const btn=inp.nextElementSibling; btn.textContent='✓ Copiato!';
-  setTimeout(()=>btn.textContent='Copia',1600);
-}
+function copyShareUrl() { const inp=document.getElementById('share-url'); inp.select(); document.execCommand('copy'); const btn=inp.nextElementSibling; btn.textContent='✓ Copiato!'; setTimeout(()=>btn.textContent='Copia',1600); }
+
 function openEmailModal() {
   const c=document.getElementById('email-user-checks'); c.innerHTML='';
-  users.forEach(u=>{
-    const lbl=document.createElement('label');
-    lbl.innerHTML=`<input type="checkbox" checked data-uname="${u}" onchange="updateEmailPreview()"> ${u}`;
-    c.appendChild(lbl);
-  });
-  updateEmailPreview();
-  document.getElementById('email-modal').classList.add('open');
+  users.forEach(u=>{ const lbl=document.createElement('label'); lbl.innerHTML=`<input type="checkbox" checked data-uname="${u}" onchange="updateEmailPreview()"> ${u}`; c.appendChild(lbl); });
+  updateEmailPreview(); document.getElementById('email-modal').classList.add('open');
 }
 function updateEmailPreview() {
+  const av=remoteData.availability||{};
   const checked=[...document.querySelectorAll('#email-user-checks input:checked')].map(i=>i.dataset.uname);
-  const L={yes:'✓ Disponibile',no:'✗ Non disponibile',''    :'— Non risposto'};
-  let txt=`DISPONIBILITÀ GARE – Calendario Triveneto Donne 2026\nGenerato il ${new Date().toLocaleDateString('it-IT')}\n${'─'.repeat(52)}\n`;
-  let lastMonth='';
-  races.forEach((race,idx)=>{
-    if(race.month!==lastMonth){txt+=`\n${race.month.toUpperCase()}\n`; lastMonth=race.month;}
-    txt+=`  ${String(race.day).padStart(2)} | ${(race.loc||'—').padEnd(28)} | ${race.den}\n`;
-    checked.forEach(u=>{ txt+=`       ${u}: ${L[(remoteData[u]||{})[idx]||'']}\n`; });
-  });
+  const L={yes:'✓ Disponibile',no:'✗ Non disponibile','':'— Non risposto'};
+  let txt=`DISPONIBILITÀ TECNICI – Calendario Triveneto Allieve 2026\nGenerato il ${new Date().toLocaleDateString('it-IT')}\n${'─'.repeat(54)}\n`;
+  let lm='';
+  races.forEach((race,idx)=>{ if(race.month!==lm){txt+=`\n${race.month.toUpperCase()}\n`;lm=race.month;} txt+=`  ${String(race.day).padStart(2)} | ${(race.loc||'—').padEnd(28)} | ${race.den}\n`; checked.forEach(u=>{txt+=`       ${u}: ${L[(av[u]||{})[idx]||'']}\n`;}); });
   document.getElementById('email-preview').value=txt;
 }
 function sendEmail() {
   const to=document.getElementById('email-to').value;
   const body=document.getElementById('email-preview').value;
-  const subj='Disponibilità Gare – Calendario Triveneto Donne 2026';
-  window.location.href=`mailto:${to}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+  window.location.href=`mailto:${to}?subject=${encodeURIComponent('Disponibilità Tecnici – Calendario Triveneto Allieve 2026')}&body=${encodeURIComponent(body)}`;
 }
 
-// ─── EXPORT ───────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════════════════════════════════
 function exportExcel() {
-  const L={yes:'Disponibile',no:'Non disponibile',''    :'—'};
+  const av=remoteData.availability||{};
+  const L={yes:'Disponibile',no:'Non disponibile','':'—'};
   const headers=['Mese','Giorno','Categoria','Località','Denominazione','Organizzatrice',...users];
-  const rows=races.map((r,i)=>[r.month,r.day,r.cat,r.loc,r.den,r.org,...users.map(u=>L[(remoteData[u]||{})[i]||''])]);
-  const wb=XLSX.utils.book_new();
-  const ws=XLSX.utils.aoa_to_sheet([headers,...rows]);
+  const rows=races.map((r,i)=>[r.month,r.day,r.cat,r.loc,r.den,r.org,...users.map(u=>L[(av[u]||{})[i]||''])]);
+  const wb=XLSX.utils.book_new(); const ws=XLSX.utils.aoa_to_sheet([headers,...rows]);
   ws['!cols']=[{wch:12},{wch:7},{wch:14},{wch:28},{wch:52},{wch:26},...users.map(()=>({wch:18}))];
   XLSX.utils.book_append_sheet(wb,ws,'Disponibilità 2026');
-  XLSX.writeFile(wb,'calendario_triveneto_donne_2026.xlsx');
+  XLSX.writeFile(wb,'calendario_triveneto_allieve_2026.xlsx');
 }
 function exportCSV() {
-  const L={yes:'Disponibile',no:'Non disponibile',''    :'—'};
+  const av=remoteData.availability||{};
+  const L={yes:'Disponibile',no:'Non disponibile','':'—'};
   const rows=[['Mese','Giorno','Categoria','Località','Denominazione','Organizzatrice',...users]];
-  races.forEach((r,i)=>rows.push([r.month,r.day,r.cat,r.loc,r.den,r.org,...users.map(u=>L[(remoteData[u]||{})[i]||''])]));
+  races.forEach((r,i)=>rows.push([r.month,r.day,r.cat,r.loc,r.den,r.org,...users.map(u=>L[(av[u]||{})[i]||''])]));
   const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv); a.download='calendario_2026.csv'; a.click();
+  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv); a.download='calendario_allieve_2026.csv'; a.click();
 }
 
-// ─── SETUP JSONBIN ────────────────────────────────────────────────────────────
-function openSetup() {
-  document.getElementById('setup-modal').classList.add('open');
-  // Default: mostra tab tecnico se non c'è cfg, altrimenti mostra tecnico
-  switchSetupTab('tecnico');
-}
-
-function switchSetupTab(tab) {
-  const isTecnico = tab === 'tecnico';
-  document.getElementById('panel-tecnico').style.display = isTecnico ? 'block' : 'none';
-  document.getElementById('panel-admin').style.display   = isTecnico ? 'none'  : 'block';
-  document.getElementById('tab-tecnico').style.background = isTecnico ? 'var(--accent)' : 'var(--surface2)';
-  document.getElementById('tab-tecnico').style.color      = isTecnico ? '#fff' : 'var(--text-muted)';
-  document.getElementById('tab-admin').style.background   = isTecnico ? 'var(--surface2)' : 'var(--accent)';
-  document.getElementById('tab-admin').style.color        = isTecnico ? 'var(--text-muted)' : '#fff';
-}
-
-// Tecnico: inserisce password (= Access Key) + Bin ID
-async function submitTecnico() {
-  const password = document.getElementById('tecnico-password').value.trim();
-  const binId    = document.getElementById('tecnico-binid').value.trim();
-  const statusEl = document.getElementById('tecnico-status');
-  if (!password || !binId) { statusEl.textContent = '⚠️ Inserisci password e Bin ID'; return; }
-  statusEl.textContent = '⏳ Verifico…';
-  saveCfg({ accessKey: password, binId });
-  const test = await jbRead();
-  if (test === null) {
-    statusEl.textContent = '❌ Password o Bin ID non corretti. Richiedi le credenziali all'admin.';
-    return;
-  }
-  statusEl.textContent = '✓ Accesso confermato!';
-  setTimeout(async () => {
-    closeModal('setup-modal');
-    await syncFromServer();
-    startPolling();
-  }, 800);
-}
-
-// Admin: crea bin + access key con la Master Key (mai salvata)
-async function submitAdmin() {
-  const masterKey = document.getElementById('admin-masterkey').value.trim();
-  const statusEl  = document.getElementById('admin-status');
-  if (!masterKey) { statusEl.textContent = '⚠️ Inserisci la Master Key'; return; }
-
-  statusEl.textContent = '⏳ Creo il database…';
-  const binId = await jbAdminCreateBin(masterKey);
-  if (!binId) {
-    statusEl.textContent = '❌ Master Key non valida o errore di rete. Controlla su jsonbin.io';
-    return;
-  }
-
-  statusEl.textContent = '⏳ Genero la password per i tecnici…';
-  const accessKey = await jbAdminCreateAccessKey(masterKey, binId);
-
-  if (!accessKey) {
-    // fallback: alcuni piani free non supportano Access Key via API → usiamo master key come fallback e avvisiamo
-    statusEl.textContent = '⚠️ Access Key non disponibile sul tuo piano — usa la Master Key come password (meno sicuro)';
-    document.getElementById('result-binid').textContent = binId;
-    document.getElementById('result-accesskey').textContent = masterKey + ' ⚠️ Master Key';
-    document.getElementById('admin-result-box').style.display = 'block';
-    // Salva cfg per l'admin stesso con master key come access key
-    saveCfg({ accessKey: masterKey, binId });
-    return;
-  }
-
-  document.getElementById('result-binid').textContent     = binId;
-  document.getElementById('result-accesskey').textContent = accessKey;
-  document.getElementById('admin-result-box').style.display = 'block';
-  statusEl.textContent = '✅ Tutto pronto! Condividi Bin ID e Password con i tecnici.';
-
-  // Salva cfg per l'admin stesso
-  saveCfg({ accessKey, binId });
-}
-
-async function resetSetup() {
-  if (!confirm('Rimuove la configurazione locale (i dati sul server rimangono intatti).')) return;
-  localStorage.removeItem(CFG_KEY);
-  location.reload();
-}
-
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-(async function init() {
-  users = loadUsersLocal();
-  activeUser = users[0];
-
-  // Aggiungi stile blink
-  const style = document.createElement('style');
-  style.textContent = `@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }`;
-  document.head.appendChild(style);
-
-  renderUserChips();
-  renderCalendar();
-  updateStats();
-
-  const cfg = getCfg();
-  if (!cfg) {
-    setSyncStatus('offline');
-    document.getElementById('last-saved').textContent = 'Non configurato — clicca ⚙️ Setup';
-    openSetup();
-  } else {
-    await syncFromServer();
-    startPolling();
+// ═══════════════════════════════════════════════════════════════════
+// AUTO-LOGIN (if saved config)
+// ═══════════════════════════════════════════════════════════════════
+(async ()=>{
+  const saved = localStorage.getItem('cal_cfg');
+  if (saved) {
+    try {
+      CFG = JSON.parse(saved);
+      const ok = await fetchRemote();
+      if (ok) {
+        if (CFG.isAdmin) {
+          document.getElementById('edit-toggle-btn').style.display='inline-flex';
+          document.getElementById('edit-sep').style.display='block';
+          document.getElementById('add-tecnico-btn').style.display='block';
+        }
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('main-app').style.display='block';
+        applyRemoteData();
+        if(!users.includes(CFG.userName)){ users.push(CFG.userName); remoteData.users=users; pushRemote(); }
+        activeUser=CFG.userName;
+        renderUserChips(); renderCalendar(); updateStats();
+        setInterval(forceSync,30000);
+        return;
+      }
+    } catch(e){}
+    localStorage.removeItem('cal_cfg');
   }
 })();
 </script>
