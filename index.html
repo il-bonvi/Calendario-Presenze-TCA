@@ -244,7 +244,6 @@
     <div class="ef-group med"><label>Categoria</label><input type="text" id="ef-cat" placeholder="D/ALL-ESORD" value="D/ALL-ESORD"></div>
     <div class="ef-group wide"><label>Località</label><input type="text" id="ef-loc" placeholder="es. Verona (VR)"></div>
     <div class="ef-group wide"><label>Denominazione</label><input type="text" id="ef-den" placeholder="es. 1° Trofeo..."></div>
-    <div class="ef-group med"><label>Organizzatrice</label><input type="text" id="ef-org" placeholder="es. U.C. ..."></div>
     <div class="ef-group med"><label>Nota speciale</label><input type="text" id="ef-special" placeholder="CRONO (opz.)"></div>
     <input type="hidden" id="ef-editing-idx" value="">
     <div class="ef-actions">
@@ -288,7 +287,6 @@
     <div class="mfield"><label>Categoria</label><input type="text" id="rm-cat"></div>
     <div class="mfield"><label>Località</label><input type="text" id="rm-loc"></div>
     <div class="mfield"><label>Denominazione</label><input type="text" id="rm-den"></div>
-    <div class="mfield"><label>Organizzatrice</label><input type="text" id="rm-org"></div>
     <div class="mfield"><label>Nota speciale (opzionale)</label><input type="text" id="rm-special" placeholder="es. CRONO, CAMPIONATO ITALIANO…"></div>
     <input type="hidden" id="rm-idx">
     <div class="modal-actions">
@@ -307,7 +305,7 @@
 // ═══════════════════════════════════════════════════════════════════
 // PASSWORD — nel codice c'è solo l'hash SHA-256, mai la password originale
 // ═══════════════════════════════════════════════════════════════════
-const PASSWORD_HASH = 'b39fff39f4d775dc375e3d83dd3062d29e95a226d65812134ac6f0d89822cfbc';
+const PASSWORD_HASH = 'd4747d14e2e368710c75fe244716f10ab66f170124d1ae3bdac1cae0103f7d1e';
 const SESSION_KEY   = 'tca_auth_2026';
 
 async function sha256(str) {
@@ -502,10 +500,10 @@ const SORT=(a,b)=>{ const m=MONTH_ORDER.indexOf(a.month)-MONTH_ORDER.indexOf(b.m
 function saveRace() {
   const day=parseInt(document.getElementById('ef-day').value), month=document.getElementById('ef-month').value;
   const cat=(document.getElementById('ef-cat').value||'').trim(), loc=(document.getElementById('ef-loc').value||'').trim();
-  const den=(document.getElementById('ef-den').value||'').trim(), org=(document.getElementById('ef-org').value||'').trim();
+  const den=(document.getElementById('ef-den').value||'').trim();
   const special=(document.getElementById('ef-special').value||'').trim();
   if(!day||!den){alert('Compila almeno Giorno e Denominazione.');return;}
-  const race={month,day,cat,loc,den,org}; if(special) race.special=special;
+  const race={month,day,cat,loc,den}; if(special) race.special=special;
   const eidx=document.getElementById('ef-editing-idx').value;
   if(eidx!=='') races[parseInt(eidx)]=race; else races.push(race);
   races.sort(SORT); clearEditorForm(); renderCalendar(); schedulePush();
@@ -519,9 +517,9 @@ function saveRaceModal() {
   const idx=parseInt(document.getElementById('rm-idx').value), day=parseInt(document.getElementById('rm-day').value);
   const month=document.getElementById('rm-month').value, cat=(document.getElementById('rm-cat').value||'').trim();
   const loc=(document.getElementById('rm-loc').value||'').trim(), den=(document.getElementById('rm-den').value||'').trim();
-  const org=(document.getElementById('rm-org').value||'').trim(), special=(document.getElementById('rm-special').value||'').trim();
+  const special=(document.getElementById('rm-special').value||'').trim();
   if(!day||!den){alert('Compila almeno Giorno e Denominazione.');return;}
-  const race={month,day,cat,loc,den,org}; if(special) race.special=special;
+  const race={month,day,cat,loc,den}; if(special) race.special=special;
   races[idx]=race; races.sort(SORT); closeModal('race-modal'); renderCalendar(); schedulePush();
 }
 function openDeleteRace(idx) {
@@ -556,7 +554,7 @@ function renderTableView(){
     const mr=races.filter(r=>r.month===month); if(!mr.length) return;
     const sec=document.createElement('div'); sec.className='month-section';
     const tH=TECNICI.map(t=>`<th class="presenza-cell"><div class="presenza-col-header"><span class="presenza-col-name">${t}</span><span class="presenza-col-sub">presenza</span></div></th>`).join('');
-    sec.innerHTML=`<div class="month-header"><span class="month-title">${month}</span><div class="month-line"></div><span class="month-count">${mr.length} gare</span></div><table><thead><tr><th>Gg</th><th>Cat.</th><th>Località</th><th>Denominazione</th><th>Organizzatrice</th>${tH}<th></th></tr></thead><tbody id="tb-${month.replace(/\s/g,'')}"></tbody></table>`;
+    sec.innerHTML=`<div class="month-header"><span class="month-title">${month}</span><div class="month-line"></div><span class="month-count">${mr.length} gare</span></div><table><thead><tr><th>Gg</th><th>Cat.</th><th>Località</th><th>Denominazione</th>${tH}<th></th></tr></thead><tbody id="tb-${month.replace(/\s/g,'')}"></tbody></table>`;
     root.appendChild(sec);
     const tbody=sec.querySelector(`#tb-${month.replace(/\s/g,'')}`);
     mr.forEach(race=>{
@@ -565,7 +563,7 @@ function renderTableView(){
       const denCell=race.den+(race.special?`<span class="special">${race.special}</span>`:'');
       const tC=TECNICI.map(t=>{ const v=presenze[idx]?.[t]; let c='toggle-btn',l='—'; if(v==='presente'){c='toggle-btn presente';l='✓ Pres.';}else if(v==='assente'){c='toggle-btn assente';l='✗ Ass.';} return `<td class="presenza-cell"><div class="toggle-wrap"><button id="btn-${idx}-${t}" class="${c}" onclick="togglePresenza(${idx},'${t}')">${l}</button></div></td>`; }).join('');
       const tr=document.createElement('tr'); tr.className='race-row';
-      tr.innerHTML=`<td class="td-date">${race.day}</td><td><span class="cat-badge${isCampio?' campio':''}">${race.cat}</span></td><td>${locCell}</td><td class="denomination">${denCell}</td><td class="organizer">${race.org||'—'}</td>${tC}<td><div class="row-actions"><button class="row-act-btn edit-btn" onclick="openEditRace(${idx})">✏️ Modifica</button><button class="row-act-btn del-btn" onclick="openDeleteRace(${idx})">🗑 Elimina</button></div></td>`;
+      tr.innerHTML=`<td class="td-date">${race.day}</td><td><span class="cat-badge${isCampio?' campio':''}">${race.cat}</span></td><td>${locCell}</td><td class="denomination">${denCell}</td>${tC}<td><div class="row-actions"><button class="row-act-btn edit-btn" onclick="openEditRace(${idx})">✏️ Modifica</button><button class="row-act-btn del-btn" onclick="openDeleteRace(${idx})">🗑 Elimina</button></div></td>`;
       tbody.appendChild(tr);
     });
   });
@@ -590,16 +588,16 @@ function renderSummaryView(){
 // ═══════════════════════════════════════════════════════════════════
 function exportExcel(){
   const L={'presente':'Presente','assente':'Assente',undefined:'—'};
-  const headers=['Mese','Giorno','Categoria','Località','Denominazione','Organizzatrice',...TECNICI];
-  const rows=races.map((r,i)=>[r.month,r.day,r.cat,r.loc,r.den,r.org,...TECNICI.map(t=>L[presenze[i]?.[t]])]);
+  const headers=['Mese','Giorno','Categoria','Località','Denominazione',...TECNICI];
+  const rows=races.map((r,i)=>[r.month,r.day,r.cat,r.loc,r.den,...TECNICI.map(t=>L[presenze[i]?.[t]])]);
   const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet([headers,...rows]);
-  ws['!cols']=[{wch:12},{wch:7},{wch:14},{wch:28},{wch:52},{wch:26},...TECNICI.map(()=>({wch:14}))];
+  ws['!cols']=[{wch:12},{wch:7},{wch:14},{wch:28},{wch:52},...TECNICI.map(()=>({wch:14}))];
   XLSX.utils.book_append_sheet(wb,ws,'Presenze 2026'); XLSX.writeFile(wb,'presenze_triveneto_2026.xlsx');
 }
 function exportCSV(){
   const L={'presente':'Presente','assente':'Assente',undefined:'—'};
-  const rows=[['Mese','Giorno','Categoria','Località','Denominazione','Organizzatrice',...TECNICI]];
-  races.forEach((r,i)=>rows.push([r.month,r.day,r.cat,r.loc,r.den,r.org,...TECNICI.map(t=>L[presenze[i]?.[t]])]));
+  const rows=[['Mese','Giorno','Categoria','Località','Denominazione',...TECNICI]];
+  races.forEach((r,i)=>rows.push([r.month,r.day,r.cat,r.loc,r.den,...TECNICI.map(t=>L[presenze[i]?.[t]])]));
   const csv=rows.map(r=>r.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
   const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv); a.download='presenze_triveneto_2026.csv'; a.click();
 }
