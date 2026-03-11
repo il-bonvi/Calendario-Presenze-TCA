@@ -405,23 +405,19 @@ let syncTimeout = null;
 // ═══════════════════════════════════════════════════════════════════
 // GITHUB CONFIG
 // ═══════════════════════════════════════════════════════════════════
-const GH_OWNER  = 'TUOUSERNAME';
-const GH_REPO   = 'TUOREPO';
-const GH_FILE   = 'presenze.json';
-const GH_TOKEN  = 'ghp_XXXXXXXXXXXXXXXXXXXX';
-const GH_API    = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`;
-let ghFileSha   = null;
+const BIN_ID  = '69b18c4cc3097a1dd5184293';
+const API_KEY = '$2a$10$TPod..zWJwveRpj5T2kJdOcQYMcTjWD2pJH2QmkesRQEJ4Ng.f36C';
+const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+const BIN_HEADERS = { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY, 'X-Bin-Versioning': 'false' };
 
 async function ghFetch() {
   setSyncStatus('syncing');
   try {
-    const res = await fetch(GH_API, { headers: { 'Authorization': `token ${GH_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+    const res = await fetch(BIN_URL + '/latest', { headers: BIN_HEADERS });
     if (!res.ok) throw new Error(res.status);
-    const json = await res.json();
-    ghFileSha = json.sha;
-    const content = JSON.parse(atob(json.content.replace(/\n/g,'')));
-    presenze = content.presenze || {};
-    if (content.races && content.races.length > 0) races = content.races;
+    const rec = (await res.json()).record;
+    presenze = rec.presenze || {};
+    if (rec.races && rec.races.length > 0) races = rec.races;
     setSyncStatus('online'); return true;
   } catch(e) { setSyncStatus('offline'); return false; }
 }
@@ -429,12 +425,8 @@ async function ghFetch() {
 async function ghPush() {
   setSyncStatus('syncing');
   try {
-    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify({ presenze, races }, null, 2))));
-    const body = { message: `Aggiornamento presenze ${new Date().toISOString()}`, content: encoded };
-    if (ghFileSha) body.sha = ghFileSha;
-    const res = await fetch(GH_API, { method: 'PUT', headers: { 'Authorization': `token ${GH_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const res = await fetch(BIN_URL, { method: 'PUT', headers: BIN_HEADERS, body: JSON.stringify({ presenze, races }) });
     if (!res.ok) throw new Error(res.status);
-    ghFileSha = (await res.json()).content.sha;
     setSyncStatus('online'); flash();
   } catch(e) { setSyncStatus('offline'); }
 }
