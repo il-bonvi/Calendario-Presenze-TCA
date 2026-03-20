@@ -490,7 +490,7 @@ function toggleEditMode() {
   else{ lbl.textContent='Modifica Calendario'; btn.style.background=''; document.getElementById('editor-panel').classList.remove('open'); clearEditorForm(); }
 }
 function clearEditorForm() {
-  ['ef-day','ef-loc','ef-den','ef-org','ef-special'].forEach(id=>document.getElementById(id).value='');
+  ['ef-day','ef-loc','ef-den','ef-special'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('ef-cat').value='D/ALL-ESORD'; document.getElementById('ef-month').value='Marzo';
   document.getElementById('ef-editing-idx').value=''; document.getElementById('editor-panel-title-text').textContent='Aggiungi Gara';
 }
