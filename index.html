@@ -249,11 +249,11 @@
     </div>
     <div class="ef-group"><label>Categoria</label>
       <div class="cat-picker" id="ef-cat-picker">
-        <label class="cat-chip"><input type="checkbox" value="ESO" onchange="updateCatField('ef')"> ESO</label>
-        <label class="cat-chip"><input type="checkbox" value="ALL" onchange="updateCatField('ef')" checked> ALL</label>
-        <label class="cat-chip"><input type="checkbox" value="JR"  onchange="updateCatField('ef')"> JR</label>
+        <label class="cat-chip"><input type="checkbox" value="DE" onchange="updateCatField('ef')"> DE</label>
+        <label class="cat-chip"><input type="checkbox" value="DA" onchange="updateCatField('ef')" checked> DA</label>
+        <label class="cat-chip"><input type="checkbox" value="DJ"  onchange="updateCatField('ef')"> DJ</label>
       </div>
-      <input type="hidden" id="ef-cat" value="ALL">
+      <input type="hidden" id="ef-cat" value="DA">
     </div>
     <div class="ef-group wide"><label>Località</label><input type="text" id="ef-loc" placeholder="es. Verona (VR)"></div>
     <div class="ef-group wide"><label>Denominazione</label><input type="text" id="ef-den" placeholder="es. 1° Trofeo..."></div>
@@ -299,11 +299,11 @@
     </div>
     <div class="mfield"><label>Categoria</label>
       <div class="cat-picker" id="rm-cat-picker">
-        <label class="cat-chip"><input type="checkbox" value="ESO" onchange="updateCatField('rm')"> ESO</label>
-        <label class="cat-chip"><input type="checkbox" value="ALL" onchange="updateCatField('rm')" checked> ALL</label>
-        <label class="cat-chip"><input type="checkbox" value="JR"  onchange="updateCatField('rm')"> JR</label>
+        <label class="cat-chip"><input type="checkbox" value="DE" onchange="updateCatField('rm')"> DE</label>
+        <label class="cat-chip"><input type="checkbox" value="DA" onchange="updateCatField('rm')" checked> DA</label>
+        <label class="cat-chip"><input type="checkbox" value="DJ"  onchange="updateCatField('rm')"> DJ</label>
       </div>
-      <input type="hidden" id="rm-cat" value="ALL">
+      <input type="hidden" id="rm-cat" value="DA">
     </div>
     <div class="mfield"><label>Località</label><input type="text" id="rm-loc"></div>
     <div class="mfield"><label>Denominazione</label><input type="text" id="rm-den"></div>
@@ -374,41 +374,41 @@ const TECNICI = ['Andrea','Antonio','Giorgio','Marcello','Martino','Michele'];
 // GARE
 // ═══════════════════════════════════════════════════════════════════
 const DEFAULT_RACES = [
-  {month:"Marzo",    day:22, cat:"ESO/ALL",   loc:"Vò Vecchio (PD)",              den:'15° Trofeo Vini "Terre Gaie" - 19^ M.O. G.Sella',       org:"Scuola Ciclismo Vò"},
-  {month:"Aprile",   day:12, cat:"ESO/ALL",   loc:"Resana (TV)",                  den:'G.P. "Resana"',                                          org:"U.C. Godigese Abra Iride"},
-  {month:"Aprile",   day:19, cat:"ESO/ALL",   loc:"Pianezze (VI)",                den:"Pianezze Girl's Road Classic",                            org:"VC Città di Marostica"},
-  {month:"Aprile",   day:25, cat:"ESO/ALL",   loc:"Dro (TN)",                     den:'33° Tr. "Loris Angeli" - 54° Tr. "Prugno Fiorito"',      org:"Ciclistica Dro"},
-  {month:"Aprile",   day:26, cat:"ESO/ALL",   loc:"Maser (TV)",                   den:'Giornata Rosa G.P. "Primavera"',                         org:"U.C. Asolana"},
-  {month:"Maggio",   day:1,  cat:"ESO/ALL",   loc:"Illasi (VR)",                  den:"Trofeo Comune di Illasi",                                org:"UC Val d'Illasi"},
-  {month:"Maggio",   day:3,  cat:"ESO/ALL",   loc:"Bovolone (VR)",                den:'2° Tr. "General Store" - 22° GP Rosa Città di Bovolone', org:"G.S. Luc Bovolone"},
-  {month:"Maggio",   day:10, cat:"ESO/ALL",   loc:"Mareno di Piave (TV)",         den:"Giornata del Ciclismo Pedale Marenese G.Bartali",        org:"Pedale Marenese G.Bartali"},
-  {month:"Maggio",   day:17, cat:"ESO/ALL",   loc:"San Marco di Mereto (UD)",     den:'XX° Tr. "Asd Don Bosco" - XVI° Tr. "Aut. Chiarcosso"',  org:"ASD Don Bosco"},
-  {month:"Maggio",   day:24, cat:"ESO/ALL",   loc:"Palù di Giovo (TN)",           den:'6° Trofeo "Gilberto Simoni"',                            org:"U.S. Montecorona"},
-  {month:"Maggio",   day:31, cat:"ESO/ALL",   loc:"Piove di Sacco (PD)",          den:"Gara Veneto Project",                                    org:"Veneto Project Team"},
-  {month:"Giugno",   day:2,  cat:"ESO/ALL",   loc:"Cappella di Scorzè (VE)",      den:"Criterium",                                              org:"Veneto ASD"},
-  {month:"Giugno",   day:6,  cat:"ALL",     loc:"Lugo di Grezzana (VR)",        den:"GP Cons. Marmisti Valpantena – CRONOSCALATA Bruno Gaiga",org:"C.A.M.P.I.",             special:"CRONO"},
-  {month:"Giugno",   day:7,  cat:"ESO/ALL",   loc:"Romagnano (TN)",               den:'Trofeo "Banca per il Trentino A.A." - GP Rothoblaas',   org:"C.C. Forti e Veloci"},
-  {month:"Giugno",   day:14, cat:"ESO/ALL",   loc:"Noventa Padovana (PD)",        den:'1° G.P. "Noventana - Padova Diesel"',                   org:"G.C. Noventana"},
-  {month:"Giugno",   day:21, cat:"ESO/ALL",   loc:"Arcade (TV)",                  den:"Trofeo Pavan",                                          org:"Young Team Arcade"},
-  {month:"Giugno",   day:24, cat:"ALL",     loc:"",                             den:"CAMPIONATO ITALIANO CRONO IND/LE",                      org:"",                       special:"CAMPIONATO ITALIANO"},
-  {month:"Giugno",   day:26, cat:"ESO/ALL/JR",  loc:"Tre Ville (TN)",               den:"5^ Notturna Castel Romano - 10° Mem. Vito Favero",      org:"S.C. Storo"},
-  {month:"Giugno",   day:27, cat:"ESO/ALL",   loc:"Bondone (TN)",                 den:'5^ Crono "Idroland"',                                   org:"S.C. Storo",             special:"CRONO"},
-  {month:"Giugno",   day:28, cat:"ESO/ALL/JR", loc:"Tre Ville (TN)",               den:'5^ Coppa "Giudicarie Centrali"',                        org:"S.C. Storo"},
-  {month:"Luglio",   day:4,  cat:"ESO/ALL",   loc:"Laives (BZ)",                  den:"CAMPIONATO ITALIANO STRADA",                            org:"Raffeisen Libertas Laives",special:"CAMPIONATO ITALIANO"},
-  {month:"Luglio",   day:12, cat:"ESO/ALL",   loc:"Ponte di Piave (TV) – Levada", den:'San Gabriel Gold Race - 4° Trofeo "Renzo Tonon"',       org:"GS San Gabriel"},
-  {month:"Luglio",   day:19, cat:"ESO/ALL",   loc:"Nervesa della Battaglia (TV)", den:'4° G.P. "Comune di Nervesa"',                           org:"GC Postioma"},
-  {month:"Luglio",   day:26, cat:"ESO/ALL",   loc:"Tarzo (TV)",                   den:'11° Trofeo "Prealpi in Rosa"',                          org:"Frare - De Nardi"},
-  {month:"Agosto",   day:1,  cat:"ESO/ALL",   loc:"Faè di Oderzo (TV)",           den:"Gara",                                                  org:""},
-  {month:"Agosto",   day:14, cat:"ESO/ALL",   loc:"Scorzè (VE)",                  den:"Gara",                                                  org:"",                       special:"TIPO PISTA"},
-  {month:"Agosto",   day:23, cat:"ESO/ALL",   loc:"Noventa di Piave (VE)",        den:"Giro dei 2 Comuni - 11^ Giornata Rosa",                 org:"Tergas Avis Noventa"},
-  {month:"Agosto",   day:27, cat:"ESO/ALL",   loc:"Villaverla (VI)",              den:"Gara",                                                  org:"",                       special:"TIPO PISTA"},
-  {month:"Agosto",   day:28, cat:"ESO/ALL",   loc:"Castelfranco Veneto (TV)",     den:"Trittico Rosa della Marca Trevigiana (1/3)",            org:"U.C. Giorgione"},
-  {month:"Agosto",   day:29, cat:"ESO/ALL",   loc:"Moriago della Battaglia (TV)", den:"Trittico Rosa della Marca Trevigiana (2/3)",            org:"U.C. Giorgione"},
-  {month:"Agosto",   day:30, cat:"ESO/ALL",   loc:"Moriago della Battaglia (TV)", den:"Trittico Rosa della Marca Trevigiana (3/3)",            org:"U.C. Giorgione"},
-  {month:"Settembre",day:6,  cat:"ESO/ALL",   loc:"Villaverla (VI)",              den:'13° Trofeo "A. Comberlato"',                            org:"G.S. Villaverla"},
-  {month:"Settembre",day:12, cat:"ESO/ALL",   loc:"Borgo Valsugana (TN)",         den:"26^ Coppa Rosa (All) - 19^ Coppa di Sera (Eso)",       org:"Veloce Club Borgo"},
-  {month:"Settembre",day:26, cat:"ALL",     loc:"Palù di Giovo (TN)",           den:"CRONO Festa dell'Uva",                                 org:"US Montecorona",         special:"CRONO"},
-  {month:"Settembre",day:27, cat:"ESO/ALL",   loc:"Bolzano (BZ)",                 den:"4^ Coppa Amelia, Vittorio e Primo Bianchi – A. Zanon", org:"Ciclistica Adriana Bolzano"},
+  {month:"Marzo",    day:22, cat:"DE/DA",   loc:"Vò Vecchio (PD)",              den:'15° Trofeo Vini "Terre Gaie" - 19^ M.O. G.Sella',       org:"Scuola Ciclismo Vò"},
+  {month:"Aprile",   day:12, cat:"DE/DA",   loc:"Resana (TV)",                  den:'G.P. "Resana"',                                          org:"U.C. Godigese Abra Iride"},
+  {month:"Aprile",   day:19, cat:"DE/DA",   loc:"Pianezze (VI)",                den:"Pianezze Girl's Road Classic",                            org:"VC Città di Marostica"},
+  {month:"Aprile",   day:25, cat:"DE/DA",   loc:"Dro (TN)",                     den:'33° Tr. "Loris Angeli" - 54° Tr. "Prugno Fiorito"',      org:"Ciclistica Dro"},
+  {month:"Aprile",   day:26, cat:"DE/DA",   loc:"Maser (TV)",                   den:'Giornata Rosa G.P. "Primavera"',                         org:"U.C. Asolana"},
+  {month:"Maggio",   day:1,  cat:"DE/DA",   loc:"Illasi (VR)",                  den:"Trofeo Comune di Illasi",                                org:"UC Val d'Illasi"},
+  {month:"Maggio",   day:3,  cat:"DE/DA",   loc:"Bovolone (VR)",                den:'2° Tr. "General Store" - 22° GP Rosa Città di Bovolone', org:"G.S. Luc Bovolone"},
+  {month:"Maggio",   day:10, cat:"DE/DA",   loc:"Mareno di Piave (TV)",         den:"Giornata del Ciclismo Pedale Marenese G.Bartali",        org:"Pedale Marenese G.Bartali"},
+  {month:"Maggio",   day:17, cat:"DE/DA",   loc:"San Marco di Mereto (UD)",     den:'XX° Tr. "Asd Don Bosco" - XVI° Tr. "Aut. Chiarcosso"',  org:"ASD Don Bosco"},
+  {month:"Maggio",   day:24, cat:"DE/DA",   loc:"Palù di Giovo (TN)",           den:'6° Trofeo "Gilberto Simoni"',                            org:"U.S. Montecorona"},
+  {month:"Maggio",   day:31, cat:"DE/DA",   loc:"Piove di Sacco (PD)",          den:"Gara Veneto Project",                                    org:"Veneto Project Team"},
+  {month:"Giugno",   day:2,  cat:"DE/DA",   loc:"Cappella di Scorzè (VE)",      den:"Criterium",                                              org:"Veneto ASD"},
+  {month:"Giugno",   day:6,  cat:"DA",     loc:"Lugo di Grezzana (VR)",        den:"GP Cons. Marmisti Valpantena – CRONOSCALATA Bruno Gaiga",org:"C.A.M.P.I.",             special:"CRONO"},
+  {month:"Giugno",   day:7,  cat:"DE/DA",   loc:"Romagnano (TN)",               den:'Trofeo "Banca per il Trentino A.A." - GP Rothoblaas',   org:"C.C. Forti e Veloci"},
+  {month:"Giugno",   day:14, cat:"DE/DA",   loc:"Noventa Padovana (PD)",        den:'1° G.P. "Noventana - Padova Diesel"',                   org:"G.C. Noventana"},
+  {month:"Giugno",   day:21, cat:"DE/DA",   loc:"Arcade (TV)",                  den:"Trofeo Pavan",                                          org:"Young Team Arcade"},
+  {month:"Giugno",   day:24, cat:"DA",     loc:"",                             den:"CAMPIONATO ITALIANO CRONO IND/LE",                      org:"",                       special:"CAMPIONATO ITALIANO"},
+  {month:"Giugno",   day:26, cat:"DE/DA/DJ",  loc:"Tre Ville (TN)",               den:"5^ Notturna Castel Romano - 10° Mem. Vito Favero",      org:"S.C. Storo"},
+  {month:"Giugno",   day:27, cat:"DE/DA",   loc:"Bondone (TN)",                 den:'5^ Crono "Idroland"',                                   org:"S.C. Storo",             special:"CRONO"},
+  {month:"Giugno",   day:28, cat:"DE/DA/DJ", loc:"Tre Ville (TN)",               den:'5^ Coppa "Giudicarie Centrali"',                        org:"S.C. Storo"},
+  {month:"Luglio",   day:4,  cat:"DE/DA",   loc:"Laives (BZ)",                  den:"CAMPIONATO ITALIANO STRADA",                            org:"Raffeisen Libertas Laives",special:"CAMPIONATO ITALIANO"},
+  {month:"Luglio",   day:12, cat:"DE/DA",   loc:"Ponte di Piave (TV) – Levada", den:'San Gabriel Gold Race - 4° Trofeo "Renzo Tonon"',       org:"GS San Gabriel"},
+  {month:"Luglio",   day:19, cat:"DE/DA",   loc:"Nervesa della Battaglia (TV)", den:'4° G.P. "Comune di Nervesa"',                           org:"GC Postioma"},
+  {month:"Luglio",   day:26, cat:"DE/DA",   loc:"Tarzo (TV)",                   den:'11° Trofeo "Prealpi in Rosa"',                          org:"Frare - De Nardi"},
+  {month:"Agosto",   day:1,  cat:"DE/DA",   loc:"Faè di Oderzo (TV)",           den:"Gara",                                                  org:""},
+  {month:"Agosto",   day:14, cat:"DE/DA",   loc:"Scorzè (VE)",                  den:"Gara",                                                  org:"",                       special:"TIPO PISTA"},
+  {month:"Agosto",   day:23, cat:"DE/DA",   loc:"Noventa di Piave (VE)",        den:"Giro dei 2 Comuni - 11^ Giornata Rosa",                 org:"Tergas Avis Noventa"},
+  {month:"Agosto",   day:27, cat:"DE/DA",   loc:"Villaverla (VI)",              den:"Gara",                                                  org:"",                       special:"TIPO PISTA"},
+  {month:"Agosto",   day:28, cat:"DE/DA",   loc:"Castelfranco Veneto (TV)",     den:"Trittico Rosa della Marca Trevigiana (1/3)",            org:"U.C. Giorgione"},
+  {month:"Agosto",   day:29, cat:"DE/DA",   loc:"Moriago della Battaglia (TV)", den:"Trittico Rosa della Marca Trevigiana (2/3)",            org:"U.C. Giorgione"},
+  {month:"Agosto",   day:30, cat:"DE/DA",   loc:"Moriago della Battaglia (TV)", den:"Trittico Rosa della Marca Trevigiana (3/3)",            org:"U.C. Giorgione"},
+  {month:"Settembre",day:6,  cat:"DE/DA",   loc:"Villaverla (VI)",              den:'13° Trofeo "A. Comberlato"',                            org:"G.S. Villaverla"},
+  {month:"Settembre",day:12, cat:"DE/DA",   loc:"Borgo Valsugana (TN)",         den:"26^ Coppa Rosa (All) - 19^ Coppa di Sera (Eso)",       org:"Veloce Club Borgo"},
+  {month:"Settembre",day:26, cat:"DA",     loc:"Palù di Giovo (TN)",           den:"CRONO Festa dell'Uva",                                 org:"US Montecorona",         special:"CRONO"},
+  {month:"Settembre",day:27, cat:"DE/DA",   loc:"Bolzano (BZ)",                 den:"4^ Coppa Amelia, Vittorio e Primo Bianchi – A. Zanon", org:"Ciclistica Adriana Bolzano"},
 ];
 
 const MONTH_ORDER = ["Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre"];
@@ -511,17 +511,18 @@ function toggleEditMode() {
 }
 function clearEditorForm() {
   ['ef-day','ef-loc','ef-den','ef-special'].forEach(id=>document.getElementById(id).value='');
-  setCatPicker('ef', 'ALL'); document.getElementById('ef-month').value='Marzo';
+  setCatPicker('ef', 'DA'); document.getElementById('ef-month').value='Marzo';
   document.getElementById('ef-editing-idx').value=''; document.getElementById('editor-panel-title-text').textContent='Aggiungi Gara';
 }
 function cancelEdit() { clearEditorForm(); }
 function normalizeCat(cat) {
   const map = {
-    'D/ALL-ESORD':'ESO/ALL','D-ALL-ESORD':'ESO/ALL',
-    'D/ALLIEVE':'ALL','D-ALLIEVE':'ALL',
-    'D/ALL':'ALL',
-    'D/JUN-ALL-ES':'ESO/ALL/JR','D/EL-UN-JU-AL':'ESO/ALL/JR',
-    'D/JUN':'JR','D-JUN':'JR'
+    'D/ALL-ESORD':'DE/DA','D-ALL-ESORD':'DE/DA',
+    'D/ALLIEVE':'DA','D-ALLIEVE':'DA',
+    'D/ALL':'DA',
+    'D/JUN-ALL-ES':'DE/DA/DJ','D/EL-UN-JU-AL':'DE/DA/DJ',
+    'D/JUN':'DJ','D-JUN':'DJ',
+    'ESO/ALL':'DE/DA','ESO/ALL/JR':'DE/DA/DJ','ALL':'DA','JR':'DJ','ESO':'DE'
   };
   return map[cat] || cat;
 }
@@ -529,7 +530,7 @@ function normalizeCat(cat) {
 const SORT=(a,b)=>{ const m=MONTH_ORDER.indexOf(a.month)-MONTH_ORDER.indexOf(b.month); return m!==0?m:a.day-b.day; };
 
 function updateCatField(prefix) {
-  const order = ['ESO','ALL','JR'];
+  const order = ['DE','DA','DJ'];
   const checked = order.filter(v => {
     const cb = document.querySelector(`#${prefix}-cat-picker input[value="${v}"]`);
     return cb && cb.checked;
@@ -538,7 +539,7 @@ function updateCatField(prefix) {
 }
 function setCatPicker(prefix, catValue) {
   const cats = (catValue||'ALL').split('/');
-  ['ESO','ALL','JR'].forEach(v => {
+  ['DE','DA','DJ'].forEach(v => {
     const cb = document.querySelector(`#${prefix}-cat-picker input[value="${v}"]`);
     if(cb) cb.checked = cats.includes(v);
   });
@@ -559,7 +560,7 @@ function saveRace() {
 function openEditRace(idx) {
   const r=races[idx];
   ['day','month','loc','den','special'].forEach(f=>{ const el=document.getElementById('rm-'+f); if(el) el.value=r[f]||''; });
-  setCatPicker('rm', r.cat||'ALL');
+  setCatPicker('rm', r.cat||'DA');
   document.getElementById('rm-idx').value=idx; document.getElementById('race-modal').classList.add('open');
 }
 function saveRaceModal() {
