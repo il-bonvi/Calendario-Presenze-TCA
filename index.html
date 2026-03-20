@@ -325,7 +325,7 @@
 // ═══════════════════════════════════════════════════════════════════
 // PASSWORD — nel codice c'è solo l'hash SHA-256, mai la password originale
 // ═══════════════════════════════════════════════════════════════════
-const PASSWORD_HASH = '1c6f5c93f0fdf5b21fdba18640c034247f9677979eac8956e2ebe3bb712d75bc';
+const PASSWORD_HASH = '75627fed4cb087e2eaf038d6d941443ff917fa4c26155cbfff3fccd532a7217d';
 const SESSION_KEY   = 'tca_auth_2026';
 
 async function sha256(str) {
@@ -435,7 +435,7 @@ async function ghFetch() {
     if (!res.ok) throw new Error(res.status);
     const rec = (await res.json()).record;
     presenze = rec.presenze || {};
-    if (rec.races && rec.races.length > 0) races = rec.races;
+    if (rec.races && rec.races.length > 0) races = rec.races.map(r=>({...r, cat:normalizeCat(r.cat)}));
     setSyncStatus('online'); return true;
   } catch(e) { setSyncStatus('offline'); return false; }
 }
@@ -515,6 +515,17 @@ function clearEditorForm() {
   document.getElementById('ef-editing-idx').value=''; document.getElementById('editor-panel-title-text').textContent='Aggiungi Gara';
 }
 function cancelEdit() { clearEditorForm(); }
+function normalizeCat(cat) {
+  const map = {
+    'D/ALL-ESORD':'ESO/ALL','D-ALL-ESORD':'ESO/ALL',
+    'D/ALLIEVE':'ALL','D-ALLIEVE':'ALL',
+    'D/ALL':'ALL',
+    'D/JUN-ALL-ES':'ESO/ALL/JR','D/EL-UN-JU-AL':'ESO/ALL/JR',
+    'D/JUN':'JR','D-JUN':'JR'
+  };
+  return map[cat] || cat;
+}
+
 const SORT=(a,b)=>{ const m=MONTH_ORDER.indexOf(a.month)-MONTH_ORDER.indexOf(b.month); return m!==0?m:a.day-b.day; };
 
 function updateCatField(prefix) {
