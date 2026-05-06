@@ -123,21 +123,57 @@
   .toggle-btn.assente  { background: rgba(220,38,38,0.07); border-color: rgba(220,38,38,0.4); color: var(--no); }
   .toggle-btn:hover { border-color: var(--accent); }
 
-  /* NEW PRESENCE POPUP STYLE */
-  #presence-popup { 
-    display: none; position: absolute; z-index: 1000; background: white; border-radius: 10px; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2); padding: 8px; border: 1px solid var(--border); 
-    flex-direction: column; gap: 4px; min-width: 120px;
+  /* MINI POPUP PRESENZE */
+  #presence-popup {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    padding: 8px;
+    border: 1px solid var(--border);
+    flex-direction: column;
+    gap: 4px;
+    min-width: 130px;
   }
-  #presence-popup button { 
-    font-family: 'Barlow Condensed', sans-serif; font-size: 13px; text-transform: uppercase; 
-    letter-spacing: 0.5px; cursor: pointer; transition: background 0.2s; background: none; 
-    width: 100%; text-align: left; padding: 8px 12px; border: none; border-radius: 6px;
+  #presence-popup button {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 7px;
+    text-align: left;
+    transition: all 0.2s;
+    background: none;
+    color: var(--text);
   }
-  #presence-popup button:hover { filter: brightness(0.95); background: var(--surface2); }
+  #presence-popup button.presente {
+    color: var(--yes);
+    background: rgba(5, 150, 105, 0.08);
+  }
+  #presence-popup button.presente:hover {
+    background: rgba(5, 150, 105, 0.15);
+  }
+  #presence-popup button.assente {
+    color: var(--no);
+    background: rgba(220, 38, 38, 0.08);
+  }
+  #presence-popup button.assente:hover {
+    background: rgba(220, 38, 38, 0.15);
+  }
+  #presence-popup button.reset {
+    color: var(--text-muted);
+  }
+  #presence-popup button.reset:hover {
+    background: var(--surface2);
+  }
 
   /* CAT PICKER */
-  .cat-picker { display: flex; gap: 6px; align-items: center; }
   .cat-chip { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; color: var(--text-muted); background: var(--surface); transition: all 0.12s; user-select: none; white-space: nowrap; }
   .cat-chip input[type=checkbox] { accent-color: var(--accent); width: 13px; height: 13px; cursor: pointer; }
   .cat-chip:has(input:checked) { border-color: var(--accent); color: var(--accent); background: rgba(214,52,104,0.07); }
@@ -282,7 +318,13 @@
   <div class="summary-grid" id="summary-view"></div>
 </div>
 
-</div><div class="modal-overlay" id="delete-modal">
+</div><div id="presence-popup">
+  <button class="presente" onclick="setPresenceState('presente')">✓ Presente</button>
+  <button class="assente" onclick="setPresenceState('assente')">✗ Assente</button>
+  <button class="reset" onclick="setPresenceState(null)">— Resetta</button>
+</div>
+
+<div class="modal-overlay" id="delete-modal">
   <div class="modal">
     <h3>🗑️ Elimina Gara</h3>
     <p id="delete-modal-text"></p>
@@ -324,12 +366,6 @@
   </div>
 </div>
 
-<div id="presence-popup">
-  <button class="presente" onclick="setPresenceState('presente')">✓ Presente</button>
-  <button class="assente" onclick="setPresenceState('assente')">✗ Assente</button>
-  <button onclick="setPresenceState(null)">— Resetta</button>
-</div>
-
 <div class="save-bar">
   <span class="save-info" id="save-info-text">—</span>
   <span class="saved-msg" id="saved-msg">✓ Salvato</span>
@@ -337,7 +373,7 @@
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
-// PASSWORD — nel codice c'è solo l'hash SHA-256, mai la password originale
+// PASSWORD — SHA-256
 // ═══════════════════════════════════════════════════════════════════
 const PASSWORD_HASH = '75627fed4cb087e2eaf038d6d941443ff917fa4c26155cbfff3fccd532a7217d';
 const SESSION_KEY   = 'tca_auth_2026';
@@ -380,13 +416,9 @@ function doLogout() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// TECNICI FISSI — ordine alfabetico
+// TECNICI & GARE
 // ═══════════════════════════════════════════════════════════════════
 const TECNICI = ['Andrea','Antonio','Giorgio','Marcello','Martino','Michele'];
-
-// ═══════════════════════════════════════════════════════════════════
-// GARE
-// ═══════════════════════════════════════════════════════════════════
 const DEFAULT_RACES = [
   {month:"Marzo",    day:22, cat:"DE/DA",   loc:"Vò Vecchio (PD)",              den:'15° Trofeo Vini "Terre Gaie" - 19^ M.O. G.Sella',       org:"Scuola Ciclismo Vò"},
   {month:"Aprile",   day:12, cat:"DE/DA",   loc:"Resana (TV)",                  den:'G.P. "Resana"',                                          org:"U.C. Godigese Abra Iride"},
@@ -400,7 +432,7 @@ const DEFAULT_RACES = [
   {month:"Maggio",   day:24, cat:"DE/DA",   loc:"Palù di Giovo (TN)",           den:'6° Trofeo "Gilberto Simoni"',                            org:"U.S. Montecorona"},
   {month:"Maggio",   day:31, cat:"DE/DA",   loc:"Piove di Sacco (PD)",          den:"Gara Veneto Project",                                    org:"Veneto Project Team"},
   {month:"Giugno",   day:2,  cat:"DE/DA",   loc:"Cappella di Scorzè (VE)",      den:"Criterium",                                              org:"Veneto ASD"},
-  {month:"Giugno",   day:6,  cat:"DA",     loc:"Lugo di Grezzana (VR)",        den:"GP Cons. Marmisti Valpantena – CRONOSCALATA Bruno Gaiga",org:"C.A.M.P.I.",             special:"CRONO"},
+  {month:"Giugno",   day:6,  cat:"DA",     loc:"Lugo di Grezzana (VR)",        den:"GP Cons. Marmisti Valpantena – CRONOSCALATA Bruno Gaiga",org:"C.A.M.I.",              special:"CRONO"},
   {month:"Giugno",   day:7,  cat:"DE/DA",   loc:"Romagnano (TN)",               den:'Trofeo "Banca per il Trentino A.A." - GP Rothoblaas',   org:"C.C. Forti e Veloci"},
   {month:"Giugno",   day:14, cat:"DE/DA",   loc:"Noventa Padovana (PD)",        den:'1° G.P. "Noventana - Padova Diesel"',                   org:"G.C. Noventana"},
   {month:"Giugno",   day:21, cat:"DE/DA",   loc:"Arcade (TV)",                  den:"Trofeo Pavan",                                          org:"Young Team Arcade"},
@@ -431,85 +463,27 @@ let presenze = {};
 let races = JSON.parse(JSON.stringify(DEFAULT_RACES));
 let currentView = 'table';
 let editMode = false;
-let pendingDeleteIdx = null;
 let syncTimeout = null;
 
 // ═══════════════════════════════════════════════════════════════════
-// GITHUB CONFIG
-// ═══════════════════════════════════════════════════════════════════
-const BIN_ID  = '69b18c4cc3097a1dd5184293';
-const API_KEY = '$2a$10$TPod..zWJwveRpj5T2kJdOcQYMcTjWD2pJH2QmkesRQEJ4Ng.f36C';
-const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-const BIN_HEADERS = { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY, 'X-Bin-Versioning': 'false' };
-
-async function ghFetch() {
-  setSyncStatus('syncing');
-  try {
-    const res = await fetch(BIN_URL + '/latest', { headers: BIN_HEADERS });
-    if (!res.ok) throw new Error(res.status);
-    const rec = (await res.json()).record;
-    presenze = rec.presenze || {};
-    if (rec.races && rec.races.length > 0) races = rec.races.map(r=>({...r, cat:normalizeCat(r.cat)}));
-    setSyncStatus('online'); return true;
-  } catch(e) { setSyncStatus('offline'); return false; }
-}
-
-async function ghPush() {
-  setSyncStatus('syncing');
-  try {
-    const res = await fetch(BIN_URL, { method: 'PUT', headers: BIN_HEADERS, body: JSON.stringify({ presenze, races }) });
-    if (!res.ok) throw new Error(res.status);
-    setSyncStatus('online'); flash();
-  } catch(e) { setSyncStatus('offline'); }
-}
-
-function schedulePush() { clearTimeout(syncTimeout); syncTimeout = setTimeout(ghPush, 1000); }
-async function forceSync() { await ghFetch(); renderCalendar(); }
-
-function setSyncStatus(state) {
-  const pill=document.getElementById('sync-pill'), txt=document.getElementById('sync-text'), dot=pill.querySelector('.sync-dot');
-  pill.className='sync-pill '+state; dot.className='sync-dot'+(state==='syncing'?' pulse':'');
-  const t=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-  if(state==='online'){ txt.textContent='Sincronizzato'; document.getElementById('sync-time').textContent='Aggiornato alle '+t; document.getElementById('save-info-text').textContent='✓ Dati online · '+t; }
-  if(state==='offline'){ txt.textContent='Offline'; document.getElementById('save-info-text').textContent='⚠ Controlla GH_OWNER / GH_REPO / GH_TOKEN nel codice'; }
-  if(state==='syncing'){ txt.textContent='Sincronizzazione…'; }
-}
-function flash(){ const m=document.getElementById('saved-msg'); m.classList.add('show'); setTimeout(()=>m.classList.remove('show'),1400); }
-
-async function initApp() {
-  renderCalendar();
-  const ok = await ghFetch();
-  if (ok) renderCalendar();
-  setInterval(forceSync, 30000);
-}
-
-// Avvio: controlla sessione già attiva
-window.addEventListener('DOMContentLoaded', () => {
-  if (sessionStorage.getItem(SESSION_KEY) === '1') {
-    document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('main-app').style.display = 'block';
-    initApp();
-  }
-});
-
-// ═══════════════════════════════════════════════════════════════════
-// PRESENZA POPUP LOGIC
+// LOGICA POPUP PRESENZE
 // ═══════════════════════════════════════════════════════════════════
 let activeEdit = { idx: null, tecnico: null };
 
 function togglePresenza(raceIdx, tecnico) {
   const event = window.event;
-  event.stopPropagation();
+  event.stopPropagation(); // Evita conflitti con click esterni
 
   activeEdit = { idx: raceIdx, tecnico };
   
   const popup = document.getElementById('presence-popup');
   popup.style.display = 'flex';
   
-  // Posizionamento dinamico
+  // Posizionamento basato sul click (scroll incluso)
   popup.style.top = (event.pageY + 10) + 'px';
   popup.style.left = (event.pageX - 60) + 'px';
 
+  // Listener per chiudere il popup cliccando fuori
   const closePopup = () => {
     popup.style.display = 'none';
     document.removeEventListener('click', closePopup);
@@ -529,6 +503,7 @@ function setPresenceState(state) {
     presenze[idx][tecnico] = state;
   }
 
+  // Aggiorna interfaccia
   const btn = document.getElementById(`btn-${idx}-${tecnico}`);
   if (btn) applyToggleState(btn, presenze[idx]?.[tecnico]);
   
@@ -546,119 +521,111 @@ function applyToggleState(btn, val) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// EDIT MODE
+// SINCRONIZZAZIONE (JSONBIN)
 // ═══════════════════════════════════════════════════════════════════
+const BIN_ID  = '69b18c4cc3097a1dd5184293';
+const API_KEY = '$2a$10$TPod..zWJwveRpj5T2kJdOcQYMcTjWD2pJH2QmkesRQEJ4Ng.f36C';
+const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+const BIN_HEADERS = { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY, 'X-Bin-Versioning': 'false' };
+
+async function ghFetch() {
+  setSyncStatus('syncing');
+  try {
+    const res = await fetch(BIN_URL + '/latest', { headers: BIN_HEADERS });
+    if (!res.ok) throw new Error(res.status);
+    const rec = (await res.json()).record;
+    presenze = rec.presenze || {};
+    if (rec.races && rec.races.length > 0) races = rec.races;
+    setSyncStatus('online'); return true;
+  } catch(e) { setSyncStatus('offline'); return false; }
+}
+
+async function ghPush() {
+  setSyncStatus('syncing');
+  try {
+    await fetch(BIN_URL, { method: 'PUT', headers: BIN_HEADERS, body: JSON.stringify({ presenze, races }) });
+    setSyncStatus('online'); flash();
+  } catch(e) { setSyncStatus('offline'); }
+}
+
+function schedulePush() { clearTimeout(syncTimeout); syncTimeout = setTimeout(ghPush, 1000); }
+async function forceSync() { await ghFetch(); renderCalendar(); }
+
+function setSyncStatus(state) {
+  const pill=document.getElementById('sync-pill'), txt=document.getElementById('sync-text'), dot=pill.querySelector('.sync-dot');
+  pill.className='sync-pill '+state; dot.className='sync-dot'+(state==='syncing'?' pulse':'');
+  const t=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  if(state==='online'){ txt.textContent='Sincronizzato'; document.getElementById('sync-time').textContent='Aggiornato alle '+t; document.getElementById('save-info-text').textContent='✓ Dati online · '+t; }
+  else if(state==='offline'){ txt.textContent='Offline'; document.getElementById('save-info-text').textContent='⚠ Errore connessione'; }
+}
+function flash(){ const m=document.getElementById('saved-msg'); m.classList.add('show'); setTimeout(()=>m.classList.remove('show'),1400); }
+
+// ═══════════════════════════════════════════════════════════════════
+// CORE APP
+// ═══════════════════════════════════════════════════════════════════
+async function initApp() {
+  renderCalendar();
+  const ok = await ghFetch();
+  if (ok) renderCalendar();
+  setInterval(forceSync, 30000);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem(SESSION_KEY) === '1') {
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('main-app').style.display = 'block';
+    initApp();
+  }
+});
+
 function toggleEditMode() {
   editMode=!editMode; document.body.classList.toggle('editing-mode',editMode);
   const lbl=document.getElementById('edit-toggle-label'), btn=document.getElementById('edit-toggle-btn');
   if(editMode){ lbl.textContent='✓ Esci da Modifica'; btn.style.background='#fff8ee'; document.getElementById('editor-panel').classList.add('open'); }
   else{ lbl.textContent='Modifica Calendario'; btn.style.background=''; document.getElementById('editor-panel').classList.remove('open'); clearEditorForm(); }
 }
+
 function clearEditorForm() {
   ['ef-day','ef-loc','ef-den','ef-special'].forEach(id=>document.getElementById(id).value='');
-  setCatPicker('ef', 'DA'); document.getElementById('ef-month').value='Marzo';
+  document.getElementById('ef-month').value='Marzo';
   document.getElementById('ef-editing-idx').value=''; document.getElementById('editor-panel-title-text').textContent='Aggiungi Gara';
 }
 function cancelEdit() { clearEditorForm(); }
-function normalizeCat(cat) {
-  const map = {
-    'D/ALL-ESORD':'DE/DA','D-ALL-ESORD':'DE/DA',
-    'D/ALLIEVE':'DA','D-ALLIEVE':'DA',
-    'D/ALL':'DA',
-    'D/JUN-ALL-ES':'DE/DA/DJ','D/EL-UN-JU-AL':'DE/DA/DJ',
-    'D/JUN':'DJ','D-JUN':'DJ',
-    'ESO/ALL':'DE/DA','ESO/ALL/JR':'DE/DA/DJ','ALL':'DA','JR':'DJ','ESO':'DE'
-  };
-  return map[cat] || cat;
-}
-
-const SORT=(a,b)=>{ const m=MONTH_ORDER.indexOf(a.month)-MONTH_ORDER.indexOf(b.month); return m!==0?m:a.day-b.day; };
-
-function updateCatField(prefix) {
-  const order = ['DE','DA','DJ'];
-  const checked = order.filter(v => {
-    const cb = document.querySelector(`#${prefix}-cat-picker input[value="${v}"]`);
-    return cb && cb.checked;
-  });
-  document.getElementById(prefix+'-cat').value = checked.length ? checked.join('/') : 'ALL';
-}
-function setCatPicker(prefix, catValue) {
-  const cats = (catValue||'ALL').split('/');
-  ['DE','DA','DJ'].forEach(v => {
-    const cb = document.querySelector(`#${prefix}-cat-picker input[value="${v}"]`);
-    if(cb) cb.checked = cats.includes(v);
-  });
-  document.getElementById(prefix+'-cat').value = catValue||'ALL';
-}
 
 function saveRace() {
   const day=parseInt(document.getElementById('ef-day').value), month=document.getElementById('ef-month').value;
-  const cat=(document.getElementById('ef-cat').value||'').trim(), loc=(document.getElementById('ef-loc').value||'').trim();
-  const den=(document.getElementById('ef-den').value||'').trim();
-  const special=(document.getElementById('ef-special').value||'').trim();
-  if(!day||!den){alert('Compila almeno Giorno e Denominazione.');return;}
+  const cat=document.getElementById('ef-cat').value, loc=document.getElementById('ef-loc').value, den=document.getElementById('ef-den').value;
+  const special=document.getElementById('ef-special').value;
+  if(!day||!den){alert('Compila Giorno e Denominazione.');return;}
   const race={month,day,cat,loc,den}; if(special) race.special=special;
-  const eidx=document.getElementById('ef-editing-idx').value;
-  if(eidx!=='') races[parseInt(eidx)]=race; else races.push(race);
-  races.sort(SORT); clearEditorForm(); renderCalendar(); schedulePush();
+  races.push(race); races.sort((a,b)=>{ const m=MONTH_ORDER.indexOf(a.month)-MONTH_ORDER.indexOf(b.month); return m!==0?m:a.day-b.day; });
+  clearEditorForm(); renderCalendar(); schedulePush();
 }
-function openEditRace(idx) {
-  const r=races[idx];
-  ['day','month','loc','den','special'].forEach(f=>{ const el=document.getElementById('rm-'+f); if(el) el.value=r[f]||''; });
-  setCatPicker('rm', r.cat||'DA');
-  document.getElementById('rm-idx').value=idx; document.getElementById('race-modal').classList.add('open');
-}
-function saveRaceModal() {
-  const idx=parseInt(document.getElementById('rm-idx').value), day=parseInt(document.getElementById('rm-day').value);
-  const month=document.getElementById('rm-month').value, cat=(document.getElementById('rm-cat').value||'').trim();
-  const loc=(document.getElementById('rm-loc').value||'').trim(), den=(document.getElementById('rm-den').value||'').trim();
-  const special=(document.getElementById('rm-special').value||'').trim();
-  if(!day||!den){alert('Compila almeno Giorno e Denominazione.');return;}
-  const race={month,day,cat,loc,den}; if(special) race.special=special;
-  races[idx]=race; races.sort(SORT); closeModal('race-modal'); renderCalendar(); schedulePush();
-}
-function openDeleteRace(idx) {
-  pendingDeleteIdx=idx;
-  document.getElementById('delete-modal-text').textContent=`Eliminare "${races[idx].den}" (${races[idx].month} ${races[idx].day})?`;
-  document.getElementById('delete-modal').classList.add('open');
-}
-function confirmDelete() {
-  if(pendingDeleteIdx===null) return;
-  races.splice(pendingDeleteIdx,1); pendingDeleteIdx=null; closeModal('delete-modal'); renderCalendar(); schedulePush();
-}
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-// ═══════════════════════════════════════════════════════════════════
-// RENDER
-// ═══════════════════════════════════════════════════════════════════
-function getMonths(){ return [...new Set(races.map(r=>r.month))].sort((a,b)=>MONTH_ORDER.indexOf(a)-MONTH_ORDER.indexOf(b)); }
-function mapsUrl(loc){ return `https://www.google.com/maps/search/${encodeURIComponent(loc+', Italia')}`; }
-function setView(v){
-  currentView=v;
-  document.getElementById('table-view').classList.toggle('hidden',v!=='table');
-  document.getElementById('summary-view').classList.toggle('active',v==='summary');
-  document.getElementById('vt-table').classList.toggle('active',v==='table');
-  document.getElementById('vt-summary').classList.toggle('active',v==='summary');
-  if(v==='summary') renderSummaryView();
-}
 function renderCalendar(){ renderTableView(); if(currentView==='summary') renderSummaryView(); }
 
 function renderTableView(){
   const root=document.getElementById('table-view'); root.innerHTML='';
-  getMonths().forEach(month=>{
-    const mr=races.filter(r=>r.month===month); if(!mr.length) return;
+  const months = [...new Set(races.map(r=>r.month))].sort((a,b)=>MONTH_ORDER.indexOf(a)-MONTH_ORDER.indexOf(b));
+  
+  months.forEach(month=>{
+    const mr=races.filter(r=>r.month===month);
     const sec=document.createElement('div'); sec.className='month-section';
     const tH=TECNICI.map(t=>`<th class="presenza-cell"><div class="presenza-col-header"><span class="presenza-col-name">${t}</span><span class="presenza-col-sub">presenza</span></div></th>`).join('');
-    sec.innerHTML=`<div class="month-header"><span class="month-title">${month}</span><div class="month-line"></div><span class="month-count">${mr.length} gare</span></div><table><thead><tr><th>Gg</th><th>Cat.</th><th>Località</th><th>Denominazione</th>${tH}<th></th></tr></thead><tbody id="tb-${month.replace(/\s/g,'')}"></tbody></table>`;
+    sec.innerHTML=`<div class="month-header"><span class="month-title">${month}</span><div class="month-line"></div><span class="month-count">${mr.length} gare</span></div><table><thead><tr><th>Gg</th><th>Cat.</th><th>Località</th><th>Denominazione</th>${tH}<th></th></tr></thead><tbody id="tb-${month}"></tbody></table>`;
     root.appendChild(sec);
-    const tbody=sec.querySelector(`#tb-${month.replace(/\s/g,'')}`);
+    const tbody=sec.querySelector(`#tb-${month}`);
     mr.forEach(race=>{
-      const idx=races.indexOf(race), isCampio=race.special&&race.special.includes('CAMPIONATO');
-      const locCell=race.loc?`<a class="locality-link" href="${mapsUrl(race.loc)}" target="_blank"><svg width="10" height="12" viewBox="0 0 12 14" fill="currentColor"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z"/></svg>${race.loc}</a>`:'<span style="color:var(--text-muted)">—</span>';
-      const denCell=race.den+(race.special?`<span class="special">${race.special}</span>`:'');
-      const tC=TECNICI.map(t=>{ const v=presenze[idx]?.[t]; let c='toggle-btn',l='—'; if(v==='presente'){c='toggle-btn presente';l='✓ Pres.';}else if(v==='assente'){c='toggle-btn assente';l='✗ Ass.';} return `<td class="presenza-cell"><div class="toggle-wrap"><button id="btn-${idx}-${t}" class="${c}" onclick="togglePresenza(${idx},'${t}')">${l}</button></div></td>`; }).join('');
+      const idx=races.indexOf(race);
+      const isCampio=race.special&&race.special.includes('CAMPIONATO');
+      const tC=TECNICI.map(t=>{ 
+        const v=presenze[idx]?.[t]; 
+        let c='toggle-btn',l='—'; 
+        if(v==='presente'){c='toggle-btn presente';l='✓ Pres.';}else if(v==='assente'){c='toggle-btn assente';l='✗ Ass.';} 
+        return `<td class="presenza-cell"><div class="toggle-wrap"><button id="btn-${idx}-${t}" class="${c}" onclick="togglePresenza(${idx},'${t}')">${l}</button></div></td>`; 
+      }).join('');
       const tr=document.createElement('tr'); tr.className='race-row';
-      tr.innerHTML=`<td class="td-date">${race.day}</td><td><span class="cat-badge${isCampio?' campio':''}">${race.cat}</span></td><td>${locCell}</td><td class="denomination">${denCell}</td>${tC}<td><div class="row-actions"><button class="row-act-btn edit-btn" onclick="openEditRace(${idx})">✏️ Modifica</button><button class="row-act-btn del-btn" onclick="openDeleteRace(${idx})">🗑 Elimina</button></div></td>`;
+      tr.innerHTML=`<td class="td-date">${race.day}</td><td><span class="cat-badge${isCampio?' campio':''}">${race.cat}</span></td><td>${race.loc||'—'}</td><td class="denomination">${race.den}${race.special?`<span class="special">${race.special}</span>`:''}</td>${tC}<td><div class="row-actions"><button class="row-act-btn del-btn" onclick="openDeleteRace(${idx})">🗑 Elimina</button></div></td>`;
       tbody.appendChild(tr);
     });
   });
@@ -670,31 +637,52 @@ function renderSummaryView(){
   const uH=TECNICI.map(t=>`<th style="text-align:center">${t}</th>`).join('');
   let rows='';
   races.forEach((race,idx)=>{
-    const isCampio=race.special&&race.special.includes('CAMPIONATO');
-    const uC=TECNICI.map(t=>{ const v=presenze[idx]?.[t]; if(v==='presente') return`<td><span class="sbadge yes">✓ Sì</span></td>`; if(v==='assente') return`<td><span class="sbadge no">✗ No</span></td>`; return`<td><span class="sbadge mt">—</span></td>`; }).join('');
-    rows+=`<tr><td style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;white-space:nowrap">${race.month} ${race.day}</td><td><span class="cat-badge${isCampio?' campio':''}">${race.cat}</span></td><td style="font-size:12px;max-width:220px">${race.den}${race.special?`<span class="special">${race.special}</span>`:''}</td>${uC}</tr>`;
+    const uC=TECNICI.map(t=>{ 
+      const v=presenze[idx]?.[t]; 
+      if(v==='presente') return`<td><span class="sbadge yes">✓ Sì</span></td>`; 
+      if(v==='assente') return`<td><span class="sbadge no">✗ No</span></td>`; 
+      return`<td><span class="sbadge mt">—</span></td>`; 
+    }).join('');
+    rows+=`<tr><td>${race.month} ${race.day}</td><td><span class="cat-badge">${race.cat}</span></td><td style="text-align:left">${race.den}</td>${uC}</tr>`;
   });
-  sec.innerHTML=`<div class="month-header" style="margin-top:24px"><span class="month-title">Riepilogo — Tutte le Gare</span><div class="month-line"></div></div><table class="summary-table"><thead><tr><th>Data</th><th>Cat.</th><th>Gara</th>${uH}</tr></thead><tbody>${rows}</tbody></table>`;
+  sec.innerHTML=`<div class="month-header"><span class="month-title">Riepilogo</span><div class="month-line"></div></div><table class="summary-table"><thead><tr><th>Data</th><th>Cat.</th><th>Gara</th>${uH}</tr></thead><tbody>${rows}</tbody></table>`;
   root.appendChild(sec);
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// EXPORT
-// ═══════════════════════════════════════════════════════════════════
+function setView(v){
+  currentView=v;
+  document.getElementById('table-view').classList.toggle('hidden',v!=='table');
+  document.getElementById('summary-view').classList.toggle('active',v==='summary');
+  document.getElementById('vt-table').classList.toggle('active',v==='table');
+  document.getElementById('vt-summary').classList.toggle('active',v==='summary');
+  if(v==='summary') renderSummaryView();
+}
+
+function updateCatField(prefix) {
+  const order = ['DE','DA','DJ'];
+  const checked = order.filter(v => document.querySelector(`#${prefix}-cat-picker input[value="${v}"]`).checked);
+  document.getElementById(prefix+'-cat').value = checked.length ? checked.join('/') : 'DA';
+}
+
+function openDeleteRace(idx) {
+  if(confirm(`Eliminare ${races[idx].den}?`)) {
+    races.splice(idx,1); renderCalendar(); schedulePush();
+  }
+}
+
 function exportExcel(){
   const L={'presente':'Presente','assente':'Assente',undefined:'—'};
   const headers=['Mese','Giorno','Categoria','Località','Denominazione',...TECNICI];
   const rows=races.map((r,i)=>[r.month,r.day,r.cat,r.loc,r.den,...TECNICI.map(t=>L[presenze[i]?.[t]])]);
   const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet([headers,...rows]);
-  ws['!cols']=[{wch:12},{wch:7},{wch:14},{wch:28},{wch:52},...TECNICI.map(()=>({wch:14}))];
   XLSX.utils.book_append_sheet(wb,ws,'Presenze 2026'); XLSX.writeFile(wb,'presenze_triveneto_2026.xlsx');
 }
 function exportCSV(){
   const L={'presente':'Presente','assente':'Assente',undefined:'—'};
   const rows=[['Mese','Giorno','Categoria','Località','Denominazione',...TECNICI]];
   races.forEach((r,i)=>rows.push([r.month,r.day,r.cat,r.loc,r.den,...TECNICI.map(t=>L[presenze[i]?.[t]])]));
-  const csv=rows.map(r=>r.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv); a.download='presenze_triveneto_2026.csv'; a.click();
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download='presenze.csv'; a.click();
 }
 </script>
 </body>
