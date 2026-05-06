@@ -123,6 +123,19 @@
   .toggle-btn.assente  { background: rgba(220,38,38,0.07); border-color: rgba(220,38,38,0.4); color: var(--no); }
   .toggle-btn:hover { border-color: var(--accent); }
 
+  /* NEW PRESENCE POPUP STYLE */
+  #presence-popup { 
+    display: none; position: absolute; z-index: 1000; background: white; border-radius: 10px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2); padding: 8px; border: 1px solid var(--border); 
+    flex-direction: column; gap: 4px; min-width: 120px;
+  }
+  #presence-popup button { 
+    font-family: 'Barlow Condensed', sans-serif; font-size: 13px; text-transform: uppercase; 
+    letter-spacing: 0.5px; cursor: pointer; transition: background 0.2s; background: none; 
+    width: 100%; text-align: left; padding: 8px 12px; border: none; border-radius: 6px;
+  }
+  #presence-popup button:hover { filter: brightness(0.95); background: var(--surface2); }
+
   /* CAT PICKER */
   .cat-picker { display: flex; gap: 6px; align-items: center; }
   .cat-chip { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; color: var(--text-muted); background: var(--surface); transition: all 0.12s; user-select: none; white-space: nowrap; }
@@ -180,7 +193,6 @@
 </head>
 <body>
 
-<!-- ═══ LOGIN SCREEN ═══ -->
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo">🚴‍♀️</div>
@@ -197,7 +209,6 @@
   </div>
 </div>
 
-<!-- ═══ MAIN APP ═══ -->
 <div id="main-app" style="display:none">
 
 <header>
@@ -232,7 +243,7 @@
   </div>
 </div>
 
-<div class="edit-banner">✏️ Modalità modifica attiva &nbsp;·&nbsp; <a href="#" onclick="toggleEditMode();return false;" style="color:#fff;text-decoration:underline">Esci</a></div>
+<div class="edit-banner">✏️ Modalità modifica attiva  ·  <a href="#" onclick="toggleEditMode();return false;" style="color:#fff;text-decoration:underline">Esci</a></div>
 
 <div class="editor-panel" id="editor-panel">
   <div class="editor-panel-title">
@@ -271,10 +282,7 @@
   <div class="summary-grid" id="summary-view"></div>
 </div>
 
-</div><!-- end #main-app -->
-
-<!-- MODALS -->
-<div class="modal-overlay" id="delete-modal">
+</div><div class="modal-overlay" id="delete-modal">
   <div class="modal">
     <h3>🗑️ Elimina Gara</h3>
     <p id="delete-modal-text"></p>
@@ -314,6 +322,12 @@
       <button class="btn-pri" onclick="saveRaceModal()">Salva Modifiche</button>
     </div>
   </div>
+</div>
+
+<div id="presence-popup">
+  <button class="presente" onclick="setPresenceState('presente')">✓ Presente</button>
+  <button class="assente" onclick="setPresenceState('assente')">✗ Assente</button>
+  <button onclick="setPresenceState(null)">— Resetta</button>
 </div>
 
 <div class="save-bar">
@@ -479,17 +493,48 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════
-// TOGGLE PRESENZA
+// PRESENZA POPUP LOGIC
 // ═══════════════════════════════════════════════════════════════════
+let activeEdit = { idx: null, tecnico: null };
+
 function togglePresenza(raceIdx, tecnico) {
-  if (!presenze[raceIdx]) presenze[raceIdx] = {};
-  const cur = presenze[raceIdx][tecnico];
-  if (!cur) presenze[raceIdx][tecnico] = 'presente';
-  else if (cur === 'presente') presenze[raceIdx][tecnico] = 'assente';
-  else delete presenze[raceIdx][tecnico];
-  const btn = document.getElementById(`btn-${raceIdx}-${tecnico}`);
-  if (btn) applyToggleState(btn, presenze[raceIdx]?.[tecnico]);
+  const event = window.event;
+  event.stopPropagation();
+
+  activeEdit = { idx: raceIdx, tecnico };
+  
+  const popup = document.getElementById('presence-popup');
+  popup.style.display = 'flex';
+  
+  // Posizionamento dinamico
+  popup.style.top = (event.pageY + 10) + 'px';
+  popup.style.left = (event.pageX - 60) + 'px';
+
+  const closePopup = () => {
+    popup.style.display = 'none';
+    document.removeEventListener('click', closePopup);
+  };
+  setTimeout(() => document.addEventListener('click', closePopup), 10);
+}
+
+function setPresenceState(state) {
+  const { idx, tecnico } = activeEdit;
+  if (idx === null) return;
+
+  if (!presenze[idx]) presenze[idx] = {};
+  
+  if (state === null) {
+    delete presenze[idx][tecnico];
+  } else {
+    presenze[idx][tecnico] = state;
+  }
+
+  const btn = document.getElementById(`btn-${idx}-${tecnico}`);
+  if (btn) applyToggleState(btn, presenze[idx]?.[tecnico]);
+  
   if (currentView === 'summary') renderSummaryView();
+  
+  document.getElementById('presence-popup').style.display = 'none';
   schedulePush();
 }
 
@@ -587,7 +632,7 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 // RENDER
 // ═══════════════════════════════════════════════════════════════════
 function getMonths(){ return [...new Set(races.map(r=>r.month))].sort((a,b)=>MONTH_ORDER.indexOf(a)-MONTH_ORDER.indexOf(b)); }
-function mapsUrl(loc){ return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc+', Italia')}`; }
+function mapsUrl(loc){ return `https://www.google.com/maps/search/${encodeURIComponent(loc+', Italia')}`; }
 function setView(v){
   currentView=v;
   document.getElementById('table-view').classList.toggle('hidden',v!=='table');
